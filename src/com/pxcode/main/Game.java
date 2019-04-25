@@ -110,7 +110,7 @@ public class Game extends Canvas implements Runnable {
 
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				System.out.println(ticks + " ticks, " + frames + " FPS");
+				//System.out.println(ticks + " ticks, " + frames + " FPS");
 				frames = 0;
 				ticks = 0;
 			}
@@ -153,9 +153,9 @@ public class Game extends Canvas implements Runnable {
 			} else { // If it is not the same unit + a unit is already in focus
 				// Surely it's an enemy
 				// Attack
-				if (unit.attack(tile)) {
-					unit.unfocus();
-					unit.hidePossbilities(this);
+				if (previousUnit.attack(unit)) {
+					previousUnit.unfocus();
+					previousUnit.hidePossbilities(this);
 				}
 			}
 		}

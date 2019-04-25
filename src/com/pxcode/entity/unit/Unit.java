@@ -192,13 +192,13 @@ public abstract class Unit implements GameObject {
 	public void focus() {
 		isFocused = true;
 		unitFocused = true;
-		focusedUnit = this;
+		Unit.focusedUnit = this;
 	}
 
 	public void unfocus() {
 		isFocused = false;
 		unitFocused = false;
-		focusedUnit = null;
+		Unit.focusedUnit = null;
 	}
 
 	private void setPossibility(Game game, List<Tile> list, int index) {
@@ -276,14 +276,11 @@ public abstract class Unit implements GameObject {
 		return false;
 	}
 
-	public boolean attack(Tile tile) {
-		if (tile.isAttackPermitted()) {
-			System.out.println("Attack " + tile.getUnit().getClass().getSimpleName() + " [TEAM: "
-					+ tile.getUnit().getTeamIndex() + "]");
-			tile.getUnit().hurt(attackDamage);
-			return true;
-		}
-		return false;
+	public boolean attack(Unit enemyUnit) {
+		System.out.println(
+				"Attack " + enemyUnit.getClass().getSimpleName() + " [TEAM: " + enemyUnit.getTeamIndex() + "]");
+		enemyUnit.hurt(attackDamage);
+		return true;
 	}
 
 	public void die() {
