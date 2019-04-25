@@ -1,0 +1,11 @@
+REQUIREMENTS:
+	2d top-down strategy game
+	turn-based fighting system
+	hexagonal tiled map
+	different terrains (5 terrains minimum)
+		each terrain has effects (damage bonuses, armor bonuses, range bonuses, movement speed bonuses) (COULD BE NEGATIVE!!)
+	units (5 units minimum)
+		each unit has his own abilities and specifications (health points, movement speed, attack damage, ability power, armor, mana shield, view/shoot/movement range)
+	multiplayer game (2 players)
+	enemy AI
+	war fog system (depends on the units view range)
