@@ -1,6 +1,14 @@
-package com.pxcode.main.tiles;
+package com.pxcode.utility;
 
 import java.io.Serializable;
+
+import com.pxcode.tiles.Grass;
+import com.pxcode.tiles.Mud;
+import com.pxcode.tiles.Sand;
+import com.pxcode.tiles.Snow;
+import com.pxcode.tiles.Stone;
+import com.pxcode.tiles.Tile;
+import com.pxcode.tiles.Water;
 
 public class SerializableTile implements Serializable {
 

@@ -1,9 +1,9 @@
-package com.pxcode.main;
+package com.pxcode.entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pxcode.entities.Unit;
+import com.pxcode.entity.unit.Unit;
 
 public abstract class Player {
 

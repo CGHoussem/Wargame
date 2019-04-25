@@ -1,11 +1,11 @@
-package com.pxcode.main.tiles;
+package com.pxcode.tiles;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 
-import com.pxcode.entities.Unit;
+import com.pxcode.entity.unit.Unit;
+import com.pxcode.graphic.Renderer;
 import com.pxcode.main.Game;
-import com.pxcode.main.Renderer;
 
 public abstract class Tile {
 

@@ -1,5 +1,6 @@
 package com.pxcode.main;
 
+
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
@@ -14,11 +15,15 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import com.pxcode.entities.Graves;
-import com.pxcode.entities.Map;
-import com.pxcode.entities.Unit;
-import com.pxcode.gui.HUD;
-import com.pxcode.main.tiles.Tile;
+import com.pxcode.entity.AIPlayer;
+import com.pxcode.entity.HumanPlayer;
+import com.pxcode.entity.Map;
+import com.pxcode.entity.Player;
+import com.pxcode.entity.unit.Graves;
+import com.pxcode.entity.unit.Unit;
+import com.pxcode.graphic.HUD;
+import com.pxcode.graphic.Renderer;
+import com.pxcode.tiles.Tile;
 
 public class Game extends Canvas implements Runnable {
 
@@ -35,13 +40,11 @@ public class Game extends Canvas implements Runnable {
 	public Map map;
 	public HUD hud;
 	public MouseHandler mouse = new MouseHandler();
+	public Graphics2D graphics;
 	public Player[] players = new Player[2];
 
 	private Tile previousTile = null;
 	private Unit previousUnit = null;
-
-	public Graphics2D graphics;
-
 	private boolean running = false;
 
 	public Game() {

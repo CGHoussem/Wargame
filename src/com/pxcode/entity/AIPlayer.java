@@ -1,4 +1,4 @@
-package com.pxcode.main;
+package com.pxcode.entity;
 
 public class AIPlayer extends Player {
 

@@ -1,4 +1,4 @@
-package com.pxcode.entities;
+package com.pxcode.utility;
 
 public enum MapType {
 	MOUNTAIN, FOREST, DESERT

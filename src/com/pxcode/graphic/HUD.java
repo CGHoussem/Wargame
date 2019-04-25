@@ -1,4 +1,4 @@
-package com.pxcode.gui;
+package com.pxcode.graphic;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -6,8 +6,7 @@ import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.pxcode.entities.GameObject;
-import com.pxcode.main.Renderer;
+import com.pxcode.entity.GameObject;
 
 public class HUD implements GameObject {
 

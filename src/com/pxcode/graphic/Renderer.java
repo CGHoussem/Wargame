@@ -1,4 +1,4 @@
-package com.pxcode.main;
+package com.pxcode.graphic;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;

@@ -1,4 +1,4 @@
-package com.pxcode.entities;
+package com.pxcode.entity.unit;
 
 import java.awt.image.BufferedImage;
 

@@ -1,4 +1,4 @@
-package com.pxcode.entities;
+package com.pxcode.entity.unit;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -7,9 +7,10 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pxcode.entity.GameObject;
+import com.pxcode.graphic.Renderer;
 import com.pxcode.main.Game;
-import com.pxcode.main.Renderer;
-import com.pxcode.main.tiles.Tile;
+import com.pxcode.tiles.Tile;
 
 public abstract class Unit implements GameObject {
 

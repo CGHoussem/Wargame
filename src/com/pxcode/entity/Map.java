@@ -1,4 +1,4 @@
-package com.pxcode.entities;
+package com.pxcode.entity;
 
 import java.awt.Point;
 import java.io.FileInputStream;
@@ -17,18 +17,19 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import com.pxcode.graphic.Renderer;
 import com.pxcode.main.Game;
-import com.pxcode.main.Renderer;
-import com.pxcode.main.tiles.Grass;
-import com.pxcode.main.tiles.Mud;
-import com.pxcode.main.tiles.OverlayTile;
-import com.pxcode.main.tiles.Sand;
-import com.pxcode.main.tiles.SerializableTile;
-import com.pxcode.main.tiles.Snow;
-import com.pxcode.main.tiles.Stone;
-import com.pxcode.main.tiles.Tile;
-import com.pxcode.main.tiles.TileType;
-import com.pxcode.main.tiles.Water;
+import com.pxcode.tiles.Grass;
+import com.pxcode.tiles.Mud;
+import com.pxcode.tiles.OverlayTile;
+import com.pxcode.tiles.Sand;
+import com.pxcode.tiles.Snow;
+import com.pxcode.tiles.Stone;
+import com.pxcode.tiles.Tile;
+import com.pxcode.tiles.Water;
+import com.pxcode.utility.MapType;
+import com.pxcode.utility.SerializableTile;
+import com.pxcode.utility.TileType;
 
 public class Map implements GameObject, Serializable {
 

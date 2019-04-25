@@ -1,4 +1,4 @@
-package com.pxcode.main.tiles;
+package com.pxcode.tiles;
 
 import java.util.Random;
 
