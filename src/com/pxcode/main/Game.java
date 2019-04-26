@@ -1,9 +1,10 @@
 package com.pxcode.main;
 
-
 import java.awt.BorderLayout;
 import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -35,13 +36,14 @@ public class Game extends Canvas implements Runnable {
 	public static final int SCALE_HEIGHT = 7;
 	public static final int WIDTH = 1110 + 20;
 	public static final int HEIGHT = 720;
-
+	public static final int STATS_FONT_SIZE = 10;
 	public Renderer renderer;
 	public Map map;
 	public HUD hud;
 	public MouseHandler mouse = new MouseHandler();
 	public Graphics2D graphics;
 	public Player[] players = new Player[2];
+	public byte currentTeamIndex = 0;
 
 	private Tile previousTile = null;
 	private Unit previousUnit = null;
@@ -53,15 +55,16 @@ public class Game extends Canvas implements Runnable {
 		} else {
 			System.exit(1);
 		}
-
+		Font font = new Font("Arial", Font.BOLD, 16);
+		setFont(font);
 		// Initialize the players
 		players[0] = new HumanPlayer((byte) 0, "PxHoussem");
 		players[1] = new AIPlayer((byte) 1, "PxAI");
 
 		renderer = new Renderer(WIDTH, HEIGHT);
 		hud = new HUD();
-		// map = new Map("map20191120255");
-		map = Map.generateMap();
+		map = new Map("map201911518317");
+		// map = Map.generateMap();
 		// map.saveMap();
 
 		addMouseListener(mouse);
@@ -110,7 +113,7 @@ public class Game extends Canvas implements Runnable {
 
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				//System.out.println(ticks + " ticks, " + frames + " FPS");
+				System.out.println(ticks + " ticks, " + frames + " FPS, " + currentTeamIndex + " is playing");
 				frames = 0;
 				ticks = 0;
 			}
@@ -121,7 +124,6 @@ public class Game extends Canvas implements Runnable {
 		// TODO: Testing Functionalities
 		Tile tile = map.pointToTile(e.getPoint());
 		Unit unit = tile.getUnit();
-
 		// If there isn't a unit in the tile
 		if (unit == null) {
 			// If the tile is accessible
@@ -137,6 +139,7 @@ public class Game extends Canvas implements Runnable {
 						previousTile.setUnit(null);
 						previousUnit.unfocus();
 						previousUnit.hidePossbilities(this);
+						currentTeamIndex = (byte) (currentTeamIndex == 1 ? 0 : 1);
 					}
 				}
 			}
@@ -146,16 +149,20 @@ public class Game extends Canvas implements Runnable {
 				// UnFocus
 				unit.unfocus();
 				unit.hidePossbilities(this);
-			} else if (!Unit.unitFocused) { // If there is not unit in focus
-				unit.focus();
-				unit.showPossbilities(this, tile);
-				previousUnit = unit;
+			} else if (unit.getTeamIndex() == currentTeamIndex) { // If there is not unit in focus
+				if (!Unit.unitFocused) {
+					unit.focus();
+					unit.showPossbilities(this, tile);
+					previousUnit = unit;
+				}
 			} else { // If it is not the same unit + a unit is already in focus
 				// Surely it's an enemy
 				// Attack
 				if (previousUnit.attack(unit)) {
 					previousUnit.unfocus();
 					previousUnit.hidePossbilities(this);
+					currentTeamIndex = (byte) (currentTeamIndex == 1 ? 0 : 1);
+					System.out.println("Changing team!");
 				}
 			}
 		}
@@ -179,10 +186,11 @@ public class Game extends Canvas implements Runnable {
 		map.render(renderer);
 		hud.render(renderer);
 		renderer.render(graphics);
+		hud.renderStrings(graphics);
 
 		graphics.dispose();
 		bs.show();
-		renderer.clear();
+		renderer.clear(0);
 	}
 
 	public static BufferedImage loadImage(String path) {

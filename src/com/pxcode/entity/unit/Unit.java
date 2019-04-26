@@ -14,24 +14,36 @@ import com.pxcode.tiles.Tile;
 
 public abstract class Unit implements GameObject {
 
+	public static int count = 0;
+
+	protected int index = 0;
 	protected byte teamIndex;
 	protected int x, y;
 	protected final float MAX_HEALTH = 100f;
+
+	protected float baseHealth;
+	protected float baseArmor;
+	protected int baseAttackDamage;
+	protected int baseMvtRange;
+	protected int baseAttackRange;
+
 	protected float health;
 	protected float armor;
 	protected int attackDamage;
 	protected int mvtRange;
 	protected int attackRange;
-	protected BufferedImage sprite, teamIndicator, focusIndicator;
+
 	protected boolean isDead;
 	protected boolean isFlipped;
 	protected boolean isFocused;
+	protected BufferedImage sprite, teamIndicator, focusIndicator;
 	protected List<List<Tile>> possibilities;
 
 	public static boolean unitFocused = false;
 	public static Unit focusedUnit = null;
 
 	public Unit(int x, int y, BufferedImage sprite) {
+		index = (count++);
 		this.x = x;
 		this.y = y;
 		this.sprite = sprite;
@@ -44,6 +56,8 @@ public abstract class Unit implements GameObject {
 			flip();
 			setTeamIndex((byte) 1);
 		}
+
+		Game.instance.hud.addUnitStats(this);
 	}
 
 	private void initStats() {
@@ -52,6 +66,66 @@ public abstract class Unit implements GameObject {
 		attackDamage = 25;
 		mvtRange = 2;
 		attackRange = 3;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public float getBaseHealth() {
+		return baseHealth;
+	}
+
+	public void setBaseHealth(float baseHealth) {
+		this.baseHealth = baseHealth;
+	}
+
+	public float getBaseArmor() {
+		return baseArmor;
+	}
+
+	public void setBaseArmor(float baseArmor) {
+		this.baseArmor = baseArmor;
+	}
+
+	public int getBaseAttackDamage() {
+		return baseAttackDamage;
+	}
+
+	public void setBaseAttackDamage(int baseAttackDamage) {
+		this.baseAttackDamage = baseAttackDamage;
+	}
+
+	public int getBaseMvtRange() {
+		return baseMvtRange;
+	}
+
+	public void setBaseMvtRange(int baseMvtRange) {
+		this.baseMvtRange = baseMvtRange;
+	}
+
+	public int getBaseAttackRange() {
+		return baseAttackRange;
+	}
+
+	public void setBaseAttackRange(int baseAttackRange) {
+		this.baseAttackRange = baseAttackRange;
+	}
+
+	public int getMvtRange() {
+		return mvtRange;
+	}
+
+	public void setMvtRange(int mvtRange) {
+		this.mvtRange = mvtRange;
+	}
+
+	public int getAttackRange() {
+		return attackRange;
+	}
+
+	public void setAttackRange(int attackRange) {
+		this.attackRange = attackRange;
 	}
 
 	public float getHealth() {
@@ -187,6 +261,7 @@ public abstract class Unit implements GameObject {
 
 	@Override
 	public void update() {
+		Game.instance.hud.updateUnitStats(this);
 	}
 
 	public void focus() {
@@ -285,6 +360,7 @@ public abstract class Unit implements GameObject {
 
 	public void die() {
 		isDead = true;
+		Game.instance.hud.removeUnitStats(this);
 		System.out.println("Unit " + getClass().getSimpleName() + " [TEAM: " + teamIndex + "] died!");
 	}
 

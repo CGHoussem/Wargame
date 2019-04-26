@@ -3,11 +3,14 @@ package com.pxcode.tiles;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 
+import com.pxcode.entity.GameObject;
+import com.pxcode.entity.unit.Graves;
+import com.pxcode.entity.unit.Kayle;
 import com.pxcode.entity.unit.Unit;
 import com.pxcode.graphic.Renderer;
 import com.pxcode.main.Game;
 
-public abstract class Tile {
+public abstract class Tile implements GameObject{
 
 	public final static int WIDTH = 111;
 	public final static int HEIGHT = 126;
@@ -34,6 +37,36 @@ public abstract class Tile {
 		cantMoveSprite = Game.loadImage("res/mvtDenied.png");
 	}
 	
+	@Override
+	public void update() {
+		if (unit != null) {
+			if (unit instanceof Graves) {							// Graves
+				if (this instanceof Mud) {								// Mud
+					unit.setMvtRange(unit.getBaseMvtRange() - 1); 			// -1 movement range
+				} else if (this instanceof Water) {						// Water
+					unit.setMvtRange(unit.getBaseMvtRange() - 2); 			// -2 movement range
+					unit.setArmor(unit.getBaseArmor() - 25); 				// -25 armor
+				} else if (this instanceof Grass) {						// Grass
+					unit.setAttackDamage(unit.getBaseAttackDamage() + 50);	// +50 attack damage
+				} else if (this instanceof Sand) {						// Sand
+					unit.setAttackRange(unit.getBaseAttackRange() + 2);		// +2 attack range
+				}
+			} else if (unit instanceof Kayle) {						// Kayle
+				if (this instanceof Snow) {								// Snow
+					unit.setMvtRange(unit.getBaseMvtRange() - 1); 			// -1 movement range
+					unit.setArmor(unit.getBaseArmor() - 35); 				// -35 armor
+				} else if (this instanceof Grass) {						// Grass
+					unit.setAttackDamage(unit.getBaseAttackDamage() + 35);	// +35 attack damage
+				} else if (this instanceof Sand) {						// Sand
+					unit.setAttackRange(unit.getBaseAttackRange() + 1);		// +1 attack range
+				} else if (this instanceof Water) {						// Water
+					unit.setArmor(unit.getBaseArmor() + 30);				// +30 armor
+				}
+			}	
+		}
+	}
+	
+	@Override
 	public void render(Renderer renderer) {
 		renderer.renderImage(tileSprite, x, y);
 	}

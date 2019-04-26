@@ -5,6 +5,8 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
+import com.pxcode.main.Game;
+
 public class Renderer {
 	private Graphics2D graphics;
 	private BufferedImage view;
@@ -13,7 +15,7 @@ public class Renderer {
 	public Renderer(int width, int height) {
 		view = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt) view.getRaster().getDataBuffer()).getData();
-		clear();
+		clear(0);
 	}
 
 	public void render(Graphics2D graphics) {
@@ -63,9 +65,17 @@ public class Renderer {
 		}
 	}
 
-	public void clear() {
+	public void clear(int color) {
 		for (int i = 0; i < pixels.length; i++) {
-			pixels[i] = 0;
+			pixels[i] = color;
+		}
+	}
+
+	public void renderPixel(int xp, int yp, int tile, int colors, int bits) {
+		for (int y = yp; y < Game.HEIGHT; y++) {
+			for (int x = xp; x < Game.WIDTH; x++) {
+				setPixel(0xFFFFFFFF, x, y);
+			}
 		}
 	}
 }
