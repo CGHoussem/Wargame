@@ -2,7 +2,6 @@ package com.pxcode.main;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -34,19 +33,21 @@ public class Game extends Canvas implements Runnable {
 	public static final String NAME = "Wargame";
 	public static final int SCALE_WIDTH = 10;
 	public static final int SCALE_HEIGHT = 7;
-	public static final int WIDTH = 1110 + 20;
-	public static final int HEIGHT = 720;
-	public static final int STATS_FONT_SIZE = 10;
+	public static final int WIDTH = 1130;
+	public static final int HEIGHT = 910;
 	public Renderer renderer;
 	public Map map;
 	public HUD hud;
 	public MouseHandler mouse = new MouseHandler();
+	public KeyHandler keyboard = new KeyHandler();
 	public Graphics2D graphics;
 	public Player[] players = new Player[2];
-	public byte currentTeamIndex = 0;
+	public byte currentTeamPlaying = 0;
+	public static boolean isDebug = false;
 
-	private Tile previousTile = null;
 	private Unit previousUnit = null;
+	private Tile previousTile = null;
+
 	private boolean running = false;
 
 	public Game() {
@@ -57,18 +58,20 @@ public class Game extends Canvas implements Runnable {
 		}
 		Font font = new Font("Arial", Font.BOLD, 16);
 		setFont(font);
+		renderer = new Renderer(WIDTH, HEIGHT);
+		hud = new HUD();
+
 		// Initialize the players
 		players[0] = new HumanPlayer((byte) 0, "PxHoussem");
 		players[1] = new AIPlayer((byte) 1, "PxAI");
 
-		renderer = new Renderer(WIDTH, HEIGHT);
-		hud = new HUD();
-		map = new Map("map201911518317");
+		map = new Map("map201911722342");
 		// map = Map.generateMap();
 		// map.saveMap();
 
 		addMouseListener(mouse);
 		addMouseMotionListener(mouse);
+		addKeyListener(keyboard);
 	}
 
 	public void start() {
@@ -113,7 +116,7 @@ public class Game extends Canvas implements Runnable {
 
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				System.out.println(ticks + " ticks, " + frames + " FPS, " + currentTeamIndex + " is playing");
+				System.out.println(ticks + " ticks, " + frames + " FPS, Team " + currentTeamPlaying + " is playing..");
 				frames = 0;
 				ticks = 0;
 			}
@@ -124,47 +127,51 @@ public class Game extends Canvas implements Runnable {
 		// TODO: Testing Functionalities
 		Tile tile = map.pointToTile(e.getPoint());
 		Unit unit = tile.getUnit();
-		// If there isn't a unit in the tile
-		if (unit == null) {
-			// If the tile is accessible
-			if (tile.isMovementPermitted()) {
-				// if there isn't a focused unit
-				if (!Unit.unitFocused) {
-					// Instantiate Unit
-					unit = new Graves(tile.getX(), tile.getY());
-					tile.setUnit(unit);
+		if (!isDebug) {
+			// there is a focused unit
+			if (Unit.unitFocused && Unit.focusedUnit != null) {
+				if (unit != null) {
+					if (unit.getTeamIndex() == currentTeamPlaying) {
+						if (unit == previousUnit) {
+							unit.unfocus();
+							previousUnit.hidePossbilities(this);
+						}
+					} else if (unit.getTeamIndex() != Unit.focusedUnit.getTeamIndex()) {
+						Unit enemy = unit;
+						if (previousUnit.attack(enemy)) {
+							previousUnit.unfocus();
+							previousUnit.hidePossbilities(this);
+							currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
+						}
+					} else {
+						previousUnit.unfocus();
+						previousUnit.hidePossbilities(this);
+						unit.focus();
+						unit.showPossbilities(this, tile);
+						previousUnit = unit;
+					}
 				} else {
-					// Move Unit
 					if (previousUnit.move(tile)) {
 						previousTile.setUnit(null);
 						previousUnit.unfocus();
 						previousUnit.hidePossbilities(this);
-						currentTeamIndex = (byte) (currentTeamIndex == 1 ? 0 : 1);
+						currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
+					}
+				}
+			} else {
+				if (unit != null) {
+					// clicked on an allied unit
+					if (unit.getTeamIndex() == currentTeamPlaying) {
+						unit.focus();
+						unit.showPossbilities(this, tile);
+						previousUnit = unit;
 					}
 				}
 			}
-		} else {
-			// If it is the same unit in focus
-			if (unit.isFocused()) {
-				// UnFocus
-				unit.unfocus();
-				unit.hidePossbilities(this);
-			} else if (unit.getTeamIndex() == currentTeamIndex) { // If there is not unit in focus
-				if (!Unit.unitFocused) {
-					unit.focus();
-					unit.showPossbilities(this, tile);
-					previousUnit = unit;
-				}
-			} else { // If it is not the same unit + a unit is already in focus
-				// Surely it's an enemy
-				// Attack
-				if (previousUnit.attack(unit)) {
-					previousUnit.unfocus();
-					previousUnit.hidePossbilities(this);
-					currentTeamIndex = (byte) (currentTeamIndex == 1 ? 0 : 1);
-					System.out.println("Changing team!");
-				}
-			}
+		} else
+
+		{
+			tile.setUnit(new Graves(tile.getX(), tile.getY()));
 		}
 		previousTile = tile;
 	}
@@ -190,7 +197,7 @@ public class Game extends Canvas implements Runnable {
 
 		graphics.dispose();
 		bs.show();
-		renderer.clear(0);
+		renderer.clear();
 	}
 
 	public static BufferedImage loadImage(String path) {
@@ -208,7 +215,7 @@ public class Game extends Canvas implements Runnable {
 		}
 	}
 
-	public static float clamp(float value, float max_value, float min_value) {
+	public static int clamp(int value, int min_value, int max_value) {
 		if (value >= max_value) {
 			return max_value;
 		} else if (value <= min_value) {

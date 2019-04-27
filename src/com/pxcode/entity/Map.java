@@ -1,6 +1,7 @@
 package com.pxcode.entity;
 
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -41,6 +42,7 @@ public class Map implements GameObject, Serializable {
 	private List<Tile> tiles;
 	private List<Tile> overlay;
 	private int hoverX, hoverY;
+	private static BufferedImage backgroundImage = null;
 
 	public Map() {
 		hoverX = hoverY = 0;
@@ -109,14 +111,17 @@ public class Map implements GameObject, Serializable {
 		case MOUNTAIN:
 			tileTypes.add(TileType.STONE);
 			tileTypes.add(TileType.SNOW);
+			backgroundImage = Game.loadImage("res/background_mountain.png");
 			break;
 		case FOREST:
 			tileTypes.add(TileType.GRASS);
 			tileTypes.add(TileType.WATER);
+			backgroundImage = Game.loadImage("res/background_forest.png");
 			break;
 		case DESERT:
 			tileTypes.add(TileType.SAND);
 			tileTypes.add(TileType.MUD);
+			backgroundImage = Game.loadImage("res/background_desert.png");
 			break;
 		}
 		int w = Tile.WIDTH;
@@ -193,6 +198,17 @@ public class Map implements GameObject, Serializable {
 
 			index = (long) objectIn.readObject();
 			type = (MapType) objectIn.readObject();
+			switch (type) {
+			case MOUNTAIN:
+				backgroundImage = Game.loadImage("res/background_mountain.png");
+				break;
+			case DESERT:
+				backgroundImage = Game.loadImage("res/background_desert.png");
+				break;
+			case FOREST:
+				backgroundImage = Game.loadImage("res/background_forest.png");
+				break;
+			}
 			while ((count++) < MAX_TILES) {
 				try {
 					objects.add(objectIn.readObject());
@@ -276,6 +292,10 @@ public class Map implements GameObject, Serializable {
 		});
 	}
 
+	public BufferedImage getBackground() {
+		return backgroundImage;
+	}
+	
 	public long getIndex() {
 		return index;
 	}

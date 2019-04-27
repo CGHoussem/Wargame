@@ -1,5 +1,8 @@
 package com.pxcode.entity.unit;
 
+import java.awt.Point;
+import java.awt.image.BufferedImage;
+
 import com.pxcode.main.Game;
 
 /*
@@ -12,4 +15,7 @@ public class Graves extends RangedUnit {
 		super(x, y, Game.loadImage("res/graves.png"));
 	}
 
+	public Graves(int index, byte teamIndex, Stats stats, Point pos, BufferedImage sprite) {
+		super(index, teamIndex, stats, pos, sprite);
+	}
 }

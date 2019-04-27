@@ -8,25 +8,20 @@ import java.awt.image.DataBufferInt;
 import com.pxcode.main.Game;
 
 public class Renderer {
-	private Graphics2D graphics;
 	private BufferedImage view;
 	private int[] pixels;
 
 	public Renderer(int width, int height) {
 		view = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt) view.getRaster().getDataBuffer()).getData();
-		clear(0);
 	}
 
 	public void render(Graphics2D graphics) {
 		graphics.drawImage(view, 0, 0, view.getWidth(), view.getHeight(), null);
-		this.graphics = graphics;
 	}
 
 	public void renderText(final String text, int posX, int posY) {
-		if (graphics != null) {
-			graphics.drawString(text, posX, posY);
-		}
+		Game.instance.graphics.drawString(text, posX, posY);
 	}
 
 	public void renderRectangle(Rectangle rectangle, int color) {
@@ -65,17 +60,7 @@ public class Renderer {
 		}
 	}
 
-	public void clear(int color) {
-		for (int i = 0; i < pixels.length; i++) {
-			pixels[i] = color;
-		}
-	}
-
-	public void renderPixel(int xp, int yp, int tile, int colors, int bits) {
-		for (int y = yp; y < Game.HEIGHT; y++) {
-			for (int x = xp; x < Game.WIDTH; x++) {
-				setPixel(0xFFFFFFFF, x, y);
-			}
-		}
+	public void clear() {
+		renderImage(Game.instance.map.getBackground(), 0, 0);
 	}
 }

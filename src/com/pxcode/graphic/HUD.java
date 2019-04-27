@@ -11,15 +11,18 @@ import java.util.Map;
 
 import com.pxcode.entity.GameObject;
 import com.pxcode.entity.unit.Unit;
+import com.pxcode.main.Game;
 
 public class HUD implements GameObject {
 
 	private Map<BufferedImage, Point> unitsElements;
 	private Map<Integer, Unit> units;
+	private BufferedImage overlayImage;
 
 	public HUD() {
 		unitsElements = new HashMap<>();
 		units = new HashMap<>();
+		overlayImage = Game.loadImage("res/overlay.png");
 	}
 
 	public void addUnitElement(BufferedImage sprite, Point coord) {
@@ -51,6 +54,7 @@ public class HUD implements GameObject {
 			unitsElements.forEach((sprite, point) -> {
 				renderer.renderImage(sprite, (int) point.getX(), (int) point.getY());
 			});
+			renderer.renderImage(overlayImage, 0, 0);
 		} catch (ConcurrentModificationException e) {
 			System.out.println(e.getMessage());
 		}
@@ -60,16 +64,18 @@ public class HUD implements GameObject {
 		try {
 			units.forEach((unitIndex, unit) -> {
 				// DRAWING THE UNIT INDEX
-				g.setColor(Color.WHITE);
-				g.drawString(String.valueOf(unit.getIndex()), unit.getX() + 55, unit.getY() + 100);
 				g.setColor(Color.BLACK);
-				g.drawString(String.valueOf("AD: " + (int) unit.getAttackDamage()), unit.getX() + 35, unit.getY() + 20);
-				g.drawString(String.valueOf("AR: " + (int) unit.getArmor()), unit.getX() + 35, unit.getY() + 35);
+				g.drawString(String.valueOf(unit.getIndex()), unit.getX() + 55, unit.getY() + 100);
+				g.setColor(Color.RED);
+				g.drawString(String.valueOf("AD: " + (int) unit.getStats().getAttackDamage()), unit.getX() + 35, unit.getY() + 20);
+				g.setColor(Color.DARK_GRAY);
+				g.drawString(String.valueOf("AR: " + (int) unit.getStats().getArmor()), unit.getX() + 35, unit.getY() + 35);
 			});
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
+	
 
 	@Override
 	public void update() {

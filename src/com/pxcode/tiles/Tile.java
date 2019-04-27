@@ -6,11 +6,12 @@ import java.awt.image.BufferedImage;
 import com.pxcode.entity.GameObject;
 import com.pxcode.entity.unit.Graves;
 import com.pxcode.entity.unit.Kayle;
+import com.pxcode.entity.unit.Stats;
 import com.pxcode.entity.unit.Unit;
 import com.pxcode.graphic.Renderer;
 import com.pxcode.main.Game;
 
-public abstract class Tile implements GameObject{
+public abstract class Tile implements GameObject {
 
 	public final static int WIDTH = 111;
 	public final static int HEIGHT = 126;
@@ -36,36 +37,47 @@ public abstract class Tile implements GameObject{
 		canMoveSprite = Game.loadImage("res/mvtGranted.png");
 		cantMoveSprite = Game.loadImage("res/mvtDenied.png");
 	}
-	
+
 	@Override
 	public void update() {
 		if (unit != null) {
-			if (unit instanceof Graves) {							// Graves
-				if (this instanceof Mud) {								// Mud
-					unit.setMvtRange(unit.getBaseMvtRange() - 1); 			// -1 movement range
-				} else if (this instanceof Water) {						// Water
-					unit.setMvtRange(unit.getBaseMvtRange() - 2); 			// -2 movement range
-					unit.setArmor(unit.getBaseArmor() - 25); 				// -25 armor
-				} else if (this instanceof Grass) {						// Grass
-					unit.setAttackDamage(unit.getBaseAttackDamage() + 50);	// +50 attack damage
-				} else if (this instanceof Sand) {						// Sand
-					unit.setAttackRange(unit.getBaseAttackRange() + 2);		// +2 attack range
+			Stats stats = unit.getStats();
+			if (unit instanceof Graves) { // Graves
+				if (this instanceof Mud) { // Mud
+					// -1 movement range
+					stats.setMovementRange(stats.getBaseMovementRange() - 1);
+				} else if (this instanceof Water) { // Water
+					// -2 movement range
+					stats.setMovementRange(stats.getBaseMovementRange() - 2);
+					// -25 armor
+					stats.setArmor(stats.getBaseArmor() - 25);
+				} else if (this instanceof Grass) { // Grass
+					// +50 attack damage
+					stats.setAttackDamage(stats.getBaseAttackDamage() + 50);
+				} else if (this instanceof Sand) { // Sand
+					// +2 attack range
+					stats.setAttackRange(stats.getBaseAttackRange() + 2);
 				}
-			} else if (unit instanceof Kayle) {						// Kayle
-				if (this instanceof Snow) {								// Snow
-					unit.setMvtRange(unit.getBaseMvtRange() - 1); 			// -1 movement range
-					unit.setArmor(unit.getBaseArmor() - 35); 				// -35 armor
-				} else if (this instanceof Grass) {						// Grass
-					unit.setAttackDamage(unit.getBaseAttackDamage() + 35);	// +35 attack damage
-				} else if (this instanceof Sand) {						// Sand
-					unit.setAttackRange(unit.getBaseAttackRange() + 1);		// +1 attack range
-				} else if (this instanceof Water) {						// Water
-					unit.setArmor(unit.getBaseArmor() + 30);				// +30 armor
+			} else if (unit instanceof Kayle) { // Kayle
+				if (this instanceof Snow) { // Snow
+					// -1 movement range
+					stats.setMovementRange(stats.getBaseMovementRange() - 1);
+					// -35 armor
+					stats.setArmor(stats.getBaseArmor() - 35);
+				} else if (this instanceof Grass) { // Grass
+					// +35 attack damage
+					stats.setAttackDamage(stats.getBaseAttackDamage() + 35);
+				} else if (this instanceof Sand) { // Sand
+					// +1 attack range
+					stats.setAttackRange(stats.getBaseAttackRange() + 1);
+				} else if (this instanceof Water) { // Water
+					// +30 armor
+					stats.setArmor(stats.getBaseArmor() + 30);
 				}
-			}	
+			}
 		}
 	}
-	
+
 	@Override
 	public void render(Renderer renderer) {
 		renderer.renderImage(tileSprite, x, y);

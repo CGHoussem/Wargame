@@ -1,5 +1,6 @@
 package com.pxcode.entity.unit;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -18,154 +19,58 @@ public abstract class Unit implements GameObject {
 
 	protected int index = 0;
 	protected byte teamIndex;
-	protected int x, y;
-	protected final float MAX_HEALTH = 100f;
-
-	protected float baseHealth;
-	protected float baseArmor;
-	protected int baseAttackDamage;
-	protected int baseMvtRange;
-	protected int baseAttackRange;
-
-	protected float health;
-	protected float armor;
-	protected int attackDamage;
-	protected int mvtRange;
-	protected int attackRange;
+	protected Point pos;
+	protected final int MAX_HEALTH = 100;
+	protected Stats stats;
 
 	protected boolean isDead;
 	protected boolean isFlipped;
 	protected boolean isFocused;
-	protected BufferedImage sprite, teamIndicator, focusIndicator;
+	protected BufferedImage sprite, teamIndicator;
 	protected List<List<Tile>> possibilities;
 
+	protected static BufferedImage focusIndicator;
 	public static boolean unitFocused = false;
 	public static Unit focusedUnit = null;
 
 	public Unit(int x, int y, BufferedImage sprite) {
 		index = (count++);
-		this.x = x;
-		this.y = y;
+		pos = new Point(x, y);
 		this.sprite = sprite;
 		isDead = isFlipped = isFocused = false;
+		stats = new Stats(MAX_HEALTH, 50, 25, 2, 3);
 		possibilities = new ArrayList<>();
-		focusIndicator = Game.loadImage("res/focusIndicator.png");
-		initStats();
-		setTeamIndex((byte) 0);
+		if (focusIndicator == null)
+			focusIndicator = Game.loadImage("res/focusIndicator.png");
+		setTeamIndex((byte)0);
 		if (x > Game.WIDTH / 2) {
+			setTeamIndex((byte)1);
 			flip();
-			setTeamIndex((byte) 1);
 		}
 
 		Game.instance.hud.addUnitStats(this);
 	}
 
-	private void initStats() {
-		health = 100f;
-		armor = 50f;
-		attackDamage = 25;
-		mvtRange = 2;
-		attackRange = 3;
+	public Unit(int index, byte teamIndex, Stats stats, Point pos, BufferedImage sprite) {
+		this.index = index;
+		setTeamIndex(teamIndex);
+		this.stats = stats;
+		this.pos = pos;
+		this.sprite = sprite;
+		possibilities = new ArrayList<>();
+		if (focusIndicator == null)
+			focusIndicator = Game.loadImage("res/focusIndicator.png");
+		if (pos.x > Game.WIDTH / 2)
+			flip();
+		Game.instance.hud.addUnitStats(this);
 	}
 
 	public int getIndex() {
 		return index;
 	}
 
-	public float getBaseHealth() {
-		return baseHealth;
-	}
-
-	public void setBaseHealth(float baseHealth) {
-		this.baseHealth = baseHealth;
-	}
-
-	public float getBaseArmor() {
-		return baseArmor;
-	}
-
-	public void setBaseArmor(float baseArmor) {
-		this.baseArmor = baseArmor;
-	}
-
-	public int getBaseAttackDamage() {
-		return baseAttackDamage;
-	}
-
-	public void setBaseAttackDamage(int baseAttackDamage) {
-		this.baseAttackDamage = baseAttackDamage;
-	}
-
-	public int getBaseMvtRange() {
-		return baseMvtRange;
-	}
-
-	public void setBaseMvtRange(int baseMvtRange) {
-		this.baseMvtRange = baseMvtRange;
-	}
-
-	public int getBaseAttackRange() {
-		return baseAttackRange;
-	}
-
-	public void setBaseAttackRange(int baseAttackRange) {
-		this.baseAttackRange = baseAttackRange;
-	}
-
-	public int getMvtRange() {
-		return mvtRange;
-	}
-
-	public void setMvtRange(int mvtRange) {
-		this.mvtRange = mvtRange;
-	}
-
-	public int getAttackRange() {
-		return attackRange;
-	}
-
-	public void setAttackRange(int attackRange) {
-		this.attackRange = attackRange;
-	}
-
-	public float getHealth() {
-		return health;
-	}
-
-	public void setHealth(float health) {
-		this.health = health;
-	}
-
-	public float getArmor() {
-		return armor;
-	}
-
-	public void setArmor(float armor) {
-		this.armor = armor;
-	}
-
-	public int getAttackDamage() {
-		return attackDamage;
-	}
-
-	public void setAttackDamage(int attackDamage) {
-		this.attackDamage = attackDamage;
-	}
-
-	public BufferedImage getTeamIndicator() {
-		return teamIndicator;
-	}
-
-	public void setTeamIndicator(BufferedImage teamIndicator) {
-		this.teamIndicator = teamIndicator;
-	}
-
-	public BufferedImage getFocusIndicator() {
-		return focusIndicator;
-	}
-
-	public void setFocusIndicator(BufferedImage focusIndicator) {
-		this.focusIndicator = focusIndicator;
+	public Stats getStats() {
+		return stats;
 	}
 
 	public boolean isDead() {
@@ -189,19 +94,19 @@ public abstract class Unit implements GameObject {
 	}
 
 	public int getX() {
-		return x;
+		return pos.x;
 	}
 
 	public void setX(int x) {
-		this.x = x;
+		this.pos.x = x;
 	}
 
 	public int getY() {
-		return y;
+		return pos.y;
 	}
 
 	public void setY(int y) {
-		this.y = y;
+		this.pos.y = y;
 	}
 
 	public BufferedImage getSprite() {
@@ -234,28 +139,28 @@ public abstract class Unit implements GameObject {
 
 	private void renderStats(Renderer renderer) {
 		int xOffset = teamIndex == 0 ? 20 : 88;
-		int healthToY = (int) ((100 - health) * 48 * 0.01);
+		int healthToY = (int) ((100 - stats.getHealth()) * 48 * 0.01);
 		int fillY = 48 - healthToY;
 		healthToY += 21;
 
-		Rectangle rect = new Rectangle(x + xOffset, y + 20, 10, 50);
+		Rectangle rect = new Rectangle(pos.x + xOffset, pos.y + 20, 10, 50);
 		// DRAWING BORDER with BLACK COLOR
 		renderer.renderRectangle(rect, 0x0);
 		// DRAWING BACKGROUND with RED COLOR
-		rect = new Rectangle(x + xOffset + 1, y + 21, 8, 48);
+		rect = new Rectangle(pos.x + xOffset + 1, pos.y + 21, 8, 48);
 		renderer.renderRectangle(rect, 0xFF0000);
 		// DRAWING HEALTH with GREEN COLOR
-		rect = new Rectangle(x + xOffset + 1, y + healthToY, 8, fillY);
+		rect = new Rectangle(pos.x + xOffset + 1, pos.y + healthToY, 8, fillY);
 		renderer.renderRectangle(rect, 0x00FF00);
 	}
 
 	@Override
 	public void render(Renderer renderer) {
-		renderer.renderImage(teamIndicator, x, y);
-		renderer.renderImage(sprite, x, y);
+		renderer.renderImage(teamIndicator, pos.x, pos.y);
+		renderer.renderImage(sprite, pos.x, pos.y);
 		renderStats(renderer);
 		if (isFocused) {
-			renderer.renderImage(focusIndicator, x, y);
+			renderer.renderImage(focusIndicator, pos.x, pos.y);
 		}
 	}
 
@@ -282,11 +187,10 @@ public abstract class Unit implements GameObject {
 	}
 
 	private void calculatePossibilities(Game game, Tile tile) {
-		// TODO: Check for limits
 		int tileIndex = game.map.getTiles().indexOf(tile);
 		List<Tile> list1 = new ArrayList<>(), list2 = new ArrayList<>(), list3 = new ArrayList<>(),
 				list4 = new ArrayList<>(), list5 = new ArrayList<>(), list6 = new ArrayList<>();
-		for (int i = 1; i <= mvtRange; i++) {
+		for (int i = 1; i <= stats.getMovementRange(); i++) {
 			setPossibility(game, list1, tileIndex + i);
 			setPossibility(game, list2, tileIndex - i);
 			setPossibility(game, list3, tileIndex + 10 * i - i);
@@ -343,8 +247,8 @@ public abstract class Unit implements GameObject {
 
 	public boolean move(Tile destination) {
 		if (destination.isMovementPermitted()) {
-			x = destination.getX();
-			y = destination.getY();
+			pos.x = destination.getX();
+			pos.y = destination.getY();
 			destination.setUnit(this);
 			return true;
 		}
@@ -352,39 +256,25 @@ public abstract class Unit implements GameObject {
 	}
 
 	public boolean attack(Unit enemyUnit) {
-		System.out.println(
-				"Attack " + enemyUnit.getClass().getSimpleName() + " [TEAM: " + enemyUnit.getTeamIndex() + "]");
-		enemyUnit.hurt(attackDamage);
+		enemyUnit.hurt(stats.getAttackDamage());
 		return true;
 	}
 
 	public void die() {
 		isDead = true;
 		Game.instance.hud.removeUnitStats(this);
-		System.out.println("Unit " + getClass().getSimpleName() + " [TEAM: " + teamIndex + "] died!");
 	}
 
 	public void hurt(float damage) {
-		float damageMultiplier = damage / (damage + armor);
-		float totalDamage = damage * damageMultiplier;
+		float damageMultiplier = damage / (damage + stats.getArmor());
+		int totalDamage = (int) (damage * damageMultiplier);
 		if (totalDamage > 0) {
-			health -= totalDamage;
-			health = Game.clamp(health, MAX_HEALTH, 0);
-			System.out.println("Unit " + getClass().getSimpleName() + " [TEAM: " + teamIndex + "] took " + totalDamage
-					+ " damage!");
-			if (health == 0) {
+			stats.setHealth(stats.getHealth() - totalDamage);
+			stats.setHealth(Game.clamp(stats.getHealth(), 0, MAX_HEALTH));
+			if (stats.getHealth() == 0) {
 				die();
 			}
-		} else {
-			System.out.println("Damage blocked!");
 		}
-	}
-
-	@Override
-	public String toString() {
-		String description = "Unit [NAME: " + getClass().getSimpleName() + "\nTEAM: " + getTeamIndex() + "\nHEALTH: "
-				+ health + "\nARMOR: " + armor + "\nAD: " + attackDamage + "\nMVT RANGE: " + mvtRange + "]";
-		return description;
 	}
 
 }

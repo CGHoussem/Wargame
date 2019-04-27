@@ -2,6 +2,7 @@ package com.pxcode.utility;
 
 import java.io.Serializable;
 
+import com.pxcode.entity.unit.Unit;
 import com.pxcode.tiles.Grass;
 import com.pxcode.tiles.Mud;
 import com.pxcode.tiles.Sand;
@@ -13,10 +14,11 @@ import com.pxcode.tiles.Water;
 public class SerializableTile implements Serializable {
 
 	private static final long serialVersionUID = -5494448102429934537L;
-
+	
 	private TileType type;
 	private int x;
 	private int y;
+	private SerializableUnit unit;
 
 	public SerializableTile(Tile tile) {
 		if (tile instanceof Grass)
@@ -33,30 +35,8 @@ public class SerializableTile implements Serializable {
 			this.type = TileType.SNOW;
 		this.x = tile.getX();
 		this.y = tile.getY();
-	}
-
-	public TileType getType() {
-		return type;
-	}
-
-	public void setType(TileType type) {
-		this.type = type;
-	}
-
-	public int getX() {
-		return x;
-	}
-
-	public void setX(int x) {
-		this.x = x;
-	}
-
-	public int getY() {
-		return y;
-	}
-
-	public void setY(int y) {
-		this.y = y;
+		if (tile.getUnit() != null)
+			unit = new SerializableUnit(tile.getUnit());
 	}
 
 	public Tile convertToTile() {
@@ -81,13 +61,9 @@ public class SerializableTile implements Serializable {
 			tile = new Snow(x, y);
 			break;
 		}
-
+		if (unit != null)
+			tile.setUnit(unit.convertToUnit());
 		return tile;
-	}
-
-	@Override
-	public String toString() {
-		return "SerializableTile [type=" + type + ", x=" + x + ", y=" + y + "]";
 	}
 
 }
