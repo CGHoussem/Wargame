@@ -286,6 +286,7 @@ public class Map implements GameObject, Serializable {
 	@Override
 	public void update() {
 		tiles.forEach(t -> {
+			t.update();
 			if (t.getUnit() != null && t.getUnit().isDead()) {
 				t.setUnit(null);
 			}

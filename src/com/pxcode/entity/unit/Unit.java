@@ -70,6 +70,10 @@ public abstract class Unit implements GameObject {
 		return stats;
 	}
 
+	public void setStats(Stats stats) {
+		this.stats = stats;
+	}
+	
 	public boolean isDead() {
 		return isDead;
 	}

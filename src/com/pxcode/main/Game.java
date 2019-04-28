@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -11,6 +12,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -36,7 +38,7 @@ public class Game extends Canvas implements Runnable {
 	public static final int WIDTH = 1130;
 	public static final int HEIGHT = 910;
 	public static final int PLATFORM_Y_OFFSET = 14;
-	
+
 	public Renderer renderer;
 	public Map map;
 	public HUD hud;
@@ -58,8 +60,19 @@ public class Game extends Canvas implements Runnable {
 		} else {
 			System.exit(1);
 		}
-		Font font = new Font("Arial", Font.BOLD, 16);
+
+		Font font = null;
+
+		InputStream fontFile = this.getClass().getResourceAsStream("../../../../res/Gamer.ttf");
+		try {
+			font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+		} catch (FontFormatException | IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		font = font.deriveFont(32f);
 		setFont(font);
+
 		renderer = new Renderer(WIDTH, HEIGHT);
 		hud = new HUD();
 
@@ -67,9 +80,8 @@ public class Game extends Canvas implements Runnable {
 		players[0] = new HumanPlayer((byte) 0, "PxHoussem");
 		players[1] = new AIPlayer((byte) 1, "PxAI");
 
-		map = new Map("map201911722342");
+		map = new Map("map20191181712");
 		// map = Map.generateMap();
-		// map.saveMap();
 
 		addMouseListener(mouse);
 		addMouseMotionListener(mouse);
@@ -170,9 +182,7 @@ public class Game extends Canvas implements Runnable {
 					}
 				}
 			}
-		} else
-
-		{
+		} else {
 			tile.setUnit(new Graves(tile.getX(), tile.getY()));
 		}
 		previousTile = tile;

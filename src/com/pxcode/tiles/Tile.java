@@ -57,6 +57,12 @@ public abstract class Tile implements GameObject {
 				} else if (this instanceof Sand) { // Sand
 					// +2 attack range
 					stats.setAttackRange(stats.getBaseAttackRange() + 2);
+				} else if (this instanceof Snow) { // Snow
+					// -1 movement range
+					stats.setMovementRange(stats.getBaseMovementRange() - 1);
+				} else {
+					// reset
+					stats.reset();
 				}
 			} else if (unit instanceof Kayle) { // Kayle
 				if (this instanceof Snow) { // Snow
@@ -73,8 +79,11 @@ public abstract class Tile implements GameObject {
 				} else if (this instanceof Water) { // Water
 					// +30 armor
 					stats.setArmor(stats.getBaseArmor() + 30);
+				} else {
+					stats.reset();
 				}
 			}
+			unit.setStats(stats);
 		}
 	}
 
@@ -162,21 +171,4 @@ public abstract class Tile implements GameObject {
 	public boolean isMovementPermitted() {
 		return isMovementPermitted;
 	}
-
-	@Override
-	public String toString() {
-		String tileType = "Grass";
-		if (this instanceof Sand)
-			tileType = "Sand";
-		else if (this instanceof Stone)
-			tileType = "Stone";
-		else if (this instanceof Water)
-			tileType = "Water";
-		else if (this instanceof Mud)
-			tileType = "Mud";
-		else if (this instanceof Snow)
-			tileType = "Snow";
-		return tileType + " (" + x + ", " + y + ")";
-	}
-
 }

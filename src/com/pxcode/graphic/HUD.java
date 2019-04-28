@@ -11,7 +11,6 @@ import java.util.Map;
 
 import com.pxcode.entity.GameObject;
 import com.pxcode.entity.unit.Stats;
-import com.pxcode.entity.unit.Unit;
 import com.pxcode.main.Game;
 
 public class HUD implements GameObject {
@@ -66,7 +65,7 @@ public class HUD implements GameObject {
 			g.drawString(String.valueOf(unitStats.getAttackRange()), 189, 820);
 		}
 	}
-	
+
 	public void renderStrings(Graphics2D g) {
 		renderUnitStats(g);
 	}

@@ -55,7 +55,6 @@ public class Renderer {
 	public void renderImage(BufferedImage image, int posX, int posY) {
 		renderImage(image, posX, posY, 1, 1, 0, 0);
 	}
-	
 
 	private void setPixel(int pixel, int posX, int posY) {
 		if (pixel != -0xFF01) {

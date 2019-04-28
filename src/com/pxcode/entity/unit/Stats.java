@@ -3,6 +3,8 @@ package com.pxcode.entity.unit;
 import java.io.Serializable;
 
 public class Stats implements Serializable {
+	private static final long serialVersionUID = -4943809179412782032L;
+
 	private int baseHealthPoints;
 	private int baseArmor;
 	private int baseAttackDamage;
@@ -23,6 +25,13 @@ public class Stats implements Serializable {
 		this.baseAttackDamage = attackDamage = baseAttackDamage;
 		this.baseMovementRange = movementRange = baseMovementRange;
 		this.baseAttackRange = attackRange = baseAttackRange;
+	}
+
+	public void reset() {
+		armor = baseArmor;
+		attackDamage = baseAttackDamage;
+		movementRange = baseMovementRange;
+		attackRange = baseAttackRange;
 	}
 
 	public int getBaseHealthPoints() {

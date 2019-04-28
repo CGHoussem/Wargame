@@ -2,9 +2,6 @@ package com.pxcode.entity.unit;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
-import com.pxcode.main.Game;
 
 public class RangedUnit extends Unit {
 
@@ -12,9 +9,9 @@ public class RangedUnit extends Unit {
 		super(x, y, sprite);
 		stats.setAttackRange(3);
 	}
-	
+
 	public RangedUnit(int index, byte teamIndex, Stats stats, Point pos, BufferedImage sprite) {
 		super(index, teamIndex, stats, pos, sprite);
 	}
-	
+
 }
