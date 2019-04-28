@@ -35,6 +35,8 @@ public class Game extends Canvas implements Runnable {
 	public static final int SCALE_HEIGHT = 7;
 	public static final int WIDTH = 1130;
 	public static final int HEIGHT = 910;
+	public static final int PLATFORM_Y_OFFSET = 14;
+	
 	public Renderer renderer;
 	public Map map;
 	public HUD hud;

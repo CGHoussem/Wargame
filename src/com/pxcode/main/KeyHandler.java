@@ -3,6 +3,8 @@ package com.pxcode.main;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import com.pxcode.entity.Map;
+
 public class KeyHandler implements KeyListener {
 
 	@Override
@@ -10,6 +12,9 @@ public class KeyHandler implements KeyListener {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_S:
 			Game.instance.map.saveMap();
+			break;
+		case KeyEvent.VK_L:
+			Game.instance.map = new Map("map"+String.valueOf(Game.instance.map.getIndex()));
 			break;
 		case KeyEvent.VK_D:
 			Game.isDebug = !Game.isDebug;

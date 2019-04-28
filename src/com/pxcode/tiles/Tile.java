@@ -80,7 +80,7 @@ public abstract class Tile implements GameObject {
 
 	@Override
 	public void render(Renderer renderer) {
-		renderer.renderImage(tileSprite, x, y);
+		renderer.renderImage(tileSprite, x, y, 0, Game.PLATFORM_Y_OFFSET);
 	}
 
 	public void requestMouvement(Game game) {

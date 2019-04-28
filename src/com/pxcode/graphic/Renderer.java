@@ -32,7 +32,7 @@ public class Renderer {
 		}
 	}
 
-	public void renderImage(BufferedImage image, int posX, int posY, int zoomX, int zoomY) {
+	public void renderImage(BufferedImage image, int posX, int posY, int zoomX, int zoomY, int offX, int offY) {
 		if (image == null)
 			return;
 		int[] imagePixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
@@ -40,17 +40,22 @@ public class Renderer {
 			for (int x = 0; x < image.getWidth(); x++) {
 				for (int zoomYIndex = 0; zoomYIndex < zoomY; zoomYIndex++) {
 					for (int zoomXIndex = 0; zoomXIndex < zoomX; zoomXIndex++) {
-						setPixel(imagePixels[y * image.getWidth() + x], (x * zoomX) + posX + zoomXIndex,
-								(y * zoomY) + posY + zoomYIndex);
+						setPixel(imagePixels[y * image.getWidth() + x], (x * zoomX) + posX + offX + zoomXIndex,
+								(y * zoomY) + posY + offY + zoomYIndex);
 					}
 				}
 			}
 		}
 	}
 
-	public void renderImage(BufferedImage image, int posX, int posY) {
-		renderImage(image, posX, posY, 1, 1);
+	public void renderImage(BufferedImage image, int posX, int posY, int offX, int offY) {
+		renderImage(image, posX, posY, 1, 1, offX, offY);
 	}
+
+	public void renderImage(BufferedImage image, int posX, int posY) {
+		renderImage(image, posX, posY, 1, 1, 0, 0);
+	}
+	
 
 	private void setPixel(int pixel, int posX, int posY) {
 		if (pixel != -0xFF01) {
@@ -60,7 +65,15 @@ public class Renderer {
 		}
 	}
 
+	private void setPixel(int pixel, int posX, int posY, int offX, int offY) {
+		if (pixel != -0xFF01) {
+			int index = (posY + offY) * view.getWidth() + posX + offX;
+			if (index < pixels.length && index >= 0)
+				pixels[index] = pixel;
+		}
+	}
+
 	public void clear() {
-		renderImage(Game.instance.map.getBackground(), 0, 0);
+		renderImage(Game.instance.map.getBackground(), 0, 0, 0, Game.PLATFORM_Y_OFFSET);
 	}
 }

@@ -42,13 +42,11 @@ public abstract class Unit implements GameObject {
 		possibilities = new ArrayList<>();
 		if (focusIndicator == null)
 			focusIndicator = Game.loadImage("res/focusIndicator.png");
-		setTeamIndex((byte)0);
+		setTeamIndex((byte) 0);
 		if (x > Game.WIDTH / 2) {
-			setTeamIndex((byte)1);
+			setTeamIndex((byte) 1);
 			flip();
 		}
-
-		Game.instance.hud.addUnitStats(this);
 	}
 
 	public Unit(int index, byte teamIndex, Stats stats, Point pos, BufferedImage sprite) {
@@ -62,7 +60,6 @@ public abstract class Unit implements GameObject {
 			focusIndicator = Game.loadImage("res/focusIndicator.png");
 		if (pos.x > Game.WIDTH / 2)
 			flip();
-		Game.instance.hud.addUnitStats(this);
 	}
 
 	public int getIndex() {
@@ -142,43 +139,48 @@ public abstract class Unit implements GameObject {
 		int healthToY = (int) ((100 - stats.getHealth()) * 48 * 0.01);
 		int fillY = 48 - healthToY;
 		healthToY += 21;
-
-		Rectangle rect = new Rectangle(pos.x + xOffset, pos.y + 20, 10, 50);
+		
+		Rectangle rect = new Rectangle(pos.x + xOffset, pos.y + 20 + Game.PLATFORM_Y_OFFSET, 10,
+				50 + Game.PLATFORM_Y_OFFSET);
 		// DRAWING BORDER with BLACK COLOR
 		renderer.renderRectangle(rect, 0x0);
 		// DRAWING BACKGROUND with RED COLOR
-		rect = new Rectangle(pos.x + xOffset + 1, pos.y + 21, 8, 48);
+		rect = new Rectangle(pos.x + xOffset + 1, pos.y + 21 + Game.PLATFORM_Y_OFFSET, 8, 48 + Game.PLATFORM_Y_OFFSET);
 		renderer.renderRectangle(rect, 0xFF0000);
 		// DRAWING HEALTH with GREEN COLOR
-		rect = new Rectangle(pos.x + xOffset + 1, pos.y + healthToY, 8, fillY);
+		rect = new Rectangle(pos.x + xOffset + 1, pos.y + healthToY + Game.PLATFORM_Y_OFFSET, 8,
+				fillY + Game.PLATFORM_Y_OFFSET);
 		renderer.renderRectangle(rect, 0x00FF00);
 	}
 
 	@Override
 	public void render(Renderer renderer) {
-		renderer.renderImage(teamIndicator, pos.x, pos.y);
-		renderer.renderImage(sprite, pos.x, pos.y);
+		renderer.renderImage(teamIndicator, pos.x, pos.y, 0, Game.PLATFORM_Y_OFFSET);
+		renderer.renderImage(sprite, pos.x, pos.y, 0, Game.PLATFORM_Y_OFFSET);
 		renderStats(renderer);
 		if (isFocused) {
-			renderer.renderImage(focusIndicator, pos.x, pos.y);
+			renderer.renderImage(focusIndicator, pos.x, pos.y, 0, Game.PLATFORM_Y_OFFSET);
 		}
 	}
 
 	@Override
 	public void update() {
-		Game.instance.hud.updateUnitStats(this);
+		if (isFocused)
+			Game.instance.hud.updateUnitStats(stats);
 	}
 
 	public void focus() {
 		isFocused = true;
 		unitFocused = true;
 		Unit.focusedUnit = this;
+		Game.instance.hud.addUnitStats(stats);
 	}
 
 	public void unfocus() {
 		isFocused = false;
 		unitFocused = false;
 		Unit.focusedUnit = null;
+		Game.instance.hud.removeUnitStats();
 	}
 
 	private void setPossibility(Game game, List<Tile> list, int index) {
@@ -262,7 +264,7 @@ public abstract class Unit implements GameObject {
 
 	public void die() {
 		isDead = true;
-		Game.instance.hud.removeUnitStats(this);
+		Game.instance.hud.removeUnitStats();
 	}
 
 	public void hurt(float damage) {
