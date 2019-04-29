@@ -73,7 +73,7 @@ public abstract class Unit implements GameObject {
 	public void setStats(Stats stats) {
 		this.stats = stats;
 	}
-	
+
 	public boolean isDead() {
 		return isDead;
 	}
@@ -138,22 +138,20 @@ public abstract class Unit implements GameObject {
 			teamIndicator = Game.loadImage("res/redUnitIndicator.png");
 	}
 
-	private void renderStats(Renderer renderer) {
+	private void renderHealthBar(Renderer renderer) {
 		int xOffset = teamIndex == 0 ? 20 : 88;
 		int healthToY = (int) ((100 - stats.getHealth()) * 48 * 0.01);
 		int fillY = 48 - healthToY;
 		healthToY += 21;
-		
-		Rectangle rect = new Rectangle(pos.x + xOffset, pos.y + 20 + Game.PLATFORM_Y_OFFSET, 10,
-				50 + Game.PLATFORM_Y_OFFSET);
+
+		Rectangle rect = new Rectangle(pos.x + xOffset, pos.y + 20 + Game.PLATFORM_Y_OFFSET, 10, 50);
 		// DRAWING BORDER with BLACK COLOR
 		renderer.renderRectangle(rect, 0x0);
 		// DRAWING BACKGROUND with RED COLOR
-		rect = new Rectangle(pos.x + xOffset + 1, pos.y + 21 + Game.PLATFORM_Y_OFFSET, 8, 48 + Game.PLATFORM_Y_OFFSET);
+		rect = new Rectangle(pos.x + xOffset + 1, pos.y + 21 + Game.PLATFORM_Y_OFFSET, 8, 48);
 		renderer.renderRectangle(rect, 0xFF0000);
 		// DRAWING HEALTH with GREEN COLOR
-		rect = new Rectangle(pos.x + xOffset + 1, pos.y + healthToY + Game.PLATFORM_Y_OFFSET, 8,
-				fillY + Game.PLATFORM_Y_OFFSET);
+		rect = new Rectangle(pos.x + xOffset + 1, pos.y + healthToY + Game.PLATFORM_Y_OFFSET, 8, fillY);
 		renderer.renderRectangle(rect, 0x00FF00);
 	}
 
@@ -161,7 +159,7 @@ public abstract class Unit implements GameObject {
 	public void render(Renderer renderer) {
 		renderer.renderImage(teamIndicator, pos.x, pos.y, 0, Game.PLATFORM_Y_OFFSET);
 		renderer.renderImage(sprite, pos.x, pos.y, 0, Game.PLATFORM_Y_OFFSET);
-		renderStats(renderer);
+		renderHealthBar(renderer);
 		if (isFocused) {
 			renderer.renderImage(focusIndicator, pos.x, pos.y, 0, Game.PLATFORM_Y_OFFSET);
 		}
@@ -251,8 +249,16 @@ public abstract class Unit implements GameObject {
 		possibilities.clear();
 	}
 
+	private boolean isInPossibilities(Tile tile) {
+		boolean contains = false;
+		for (List<Tile> list : possibilities) {
+			contains |= list.contains(tile);
+		}
+		return contains;
+	}
+
 	public boolean move(Tile destination) {
-		if (destination.isMovementPermitted()) {
+		if (destination.isMovementPermitted() && isInPossibilities(destination)) {
 			pos.x = destination.getX();
 			pos.y = destination.getY();
 			destination.setUnit(this);
@@ -261,9 +267,12 @@ public abstract class Unit implements GameObject {
 		return false;
 	}
 
-	public boolean attack(Unit enemyUnit) {
-		enemyUnit.hurt(stats.getAttackDamage());
-		return true;
+	public boolean attack(Tile enemyTile) {
+		if (enemyTile.isAttackPermitted()) {
+			enemyTile.getUnit().hurt(stats.getAttackDamage());
+			return true;
+		}
+		return false;
 	}
 
 	public void die() {
@@ -281,6 +290,10 @@ public abstract class Unit implements GameObject {
 				die();
 			}
 		}
+	}
+
+	public void setAsEnemyHUD() {
+		Game.instance.hud.setEnemyUnit(this);
 	}
 
 }

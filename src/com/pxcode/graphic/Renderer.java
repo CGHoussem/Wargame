@@ -33,8 +33,6 @@ public class Renderer {
 	}
 
 	public void renderImage(BufferedImage image, int posX, int posY, int zoomX, int zoomY, int offX, int offY) {
-		if (image == null)
-			return;
 		int[] imagePixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		for (int y = 0; y < image.getHeight(); y++) {
 			for (int x = 0; x < image.getWidth(); x++) {
@@ -59,14 +57,6 @@ public class Renderer {
 	private void setPixel(int pixel, int posX, int posY) {
 		if (pixel != -0xFF01) {
 			int index = posY * view.getWidth() + posX;
-			if (index < pixels.length && index >= 0)
-				pixels[index] = pixel;
-		}
-	}
-
-	private void setPixel(int pixel, int posX, int posY, int offX, int offY) {
-		if (pixel != -0xFF01) {
-			int index = (posY + offY) * view.getWidth() + posX + offX;
 			if (index < pixels.length && index >= 0)
 				pixels[index] = pixel;
 		}

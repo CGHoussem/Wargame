@@ -18,6 +18,7 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import com.pxcode.entity.unit.Unit;
 import com.pxcode.graphic.Renderer;
 import com.pxcode.main.Game;
 import com.pxcode.tiles.Grass;
@@ -230,7 +231,15 @@ public class Map implements GameObject, Serializable {
 		}
 	}
 
-	public void overTile(Point p) {
+	public void overTile(byte currentTeamPlaying, Point p) {
+		Tile tile = pointToTile(p);
+		if (tile != null) {
+			Unit unit = tile.getUnit();
+			if (unit != null && unit.getTeamIndex() != currentTeamPlaying) {
+				unit.setAsEnemyHUD();
+			}
+		}
+		
 		hoverX = p.x;
 		hoverY = p.y;
 	}

@@ -130,7 +130,7 @@ public class Game extends Canvas implements Runnable {
 
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				System.out.println(ticks + " ticks, " + frames + " FPS, Team " + currentTeamPlaying + " is playing..");
+				//System.out.println(ticks + " ticks, " + frames + " FPS, Team " + currentTeamPlaying + " is playing..");
 				frames = 0;
 				ticks = 0;
 			}
@@ -151,8 +151,7 @@ public class Game extends Canvas implements Runnable {
 							previousUnit.hidePossbilities(this);
 						}
 					} else if (unit.getTeamIndex() != Unit.focusedUnit.getTeamIndex()) {
-						Unit enemy = unit;
-						if (previousUnit.attack(enemy)) {
+						if (previousUnit.attack(tile)) {
 							previousUnit.unfocus();
 							previousUnit.hidePossbilities(this);
 							currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
@@ -189,8 +188,9 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	private void update() {
-		map.overTile(new Point(mouse.x, mouse.y));
+		map.overTile(currentTeamPlaying, new Point(mouse.x, mouse.y));
 		map.update();
+		hud.update();
 	}
 
 	private void render() {
@@ -201,11 +201,11 @@ public class Game extends Canvas implements Runnable {
 			return;
 		}
 
-		Graphics2D graphics = (Graphics2D) bs.getDrawGraphics();
+		graphics = (Graphics2D) bs.getDrawGraphics();
 		map.render(renderer);
 		hud.render(renderer);
 		renderer.render(graphics);
-		hud.renderStrings(graphics);
+		hud.renderTexts(graphics);
 
 		graphics.dispose();
 		bs.show();
