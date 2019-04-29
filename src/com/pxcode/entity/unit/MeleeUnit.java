@@ -7,6 +7,7 @@ public class MeleeUnit extends Unit {
 
 	public MeleeUnit(int x, int y, BufferedImage sprite) {
 		super(x, y, sprite);
+		stats.setBaseAttackRange(1);
 		stats.setAttackRange(1);
 	}
 

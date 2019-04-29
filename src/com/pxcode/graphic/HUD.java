@@ -50,18 +50,6 @@ public class HUD implements GameObject {
 		unitStats = null;
 	}
 
-	@Override
-	public void render(Renderer renderer) {
-		try {
-			unitsElements.forEach((sprite, point) -> {
-				renderer.renderImage(sprite, (int) point.getX(), (int) point.getY(), 0, Game.PLATFORM_Y_OFFSET);
-			});
-			renderer.renderImage(overlayImage, 0, 0);
-		} catch (ConcurrentModificationException e) {
-			System.out.println(e.getMessage());
-		}
-	}
-
 	private void renderOutlinedText(Graphics2D g, String text, Color outline, Color fill, int x, int y) {
 		AffineTransform oldAF = g.getTransform();
 		g.translate(x, y);
@@ -112,7 +100,48 @@ public class HUD implements GameObject {
 	public void renderTexts(Graphics2D g) {
 		renderUnitStats(g);
 		renderEnemyUnitHealth();
+
+		String teamText = "";
+		int teamScore = 0;
+		Color teamColor = null;
+		if (Game.instance.currentTeamPlaying == 0) {
+			teamText = "TEAM BLUE";
+			teamColor = new Color(100, 74, 166);
+		} else {
+			teamText = "TEAM RED";
+			teamColor = new Color(196, 16, 18);
+		}
+
+		teamScore = Game.instance.players[Game.instance.currentTeamPlaying].getScore();
+		renderOutlinedText(g, teamText, Color.BLACK, teamColor, 759, 757);
+		renderOutlinedText(g, String.valueOf(teamScore), Color.BLACK, Color.WHITE, 848, 782);
+		renderOutlinedText(g, String.valueOf(Game.countdownTimer), Color.BLACK, Color.WHITE, 960, 795);
 		unsetEnemyUnit();
+	}
+
+	private void renderCurrentTeamInfo(Renderer renderer) {
+		BufferedImage teamFlag = null;
+
+		if (Game.instance.currentTeamPlaying == 0) {
+			teamFlag = Game.loadImage("res/blue_flag.png");
+		} else {
+			teamFlag = Game.loadImage("res/red_flag.png");
+		}
+
+		renderer.renderImage(teamFlag, 705, 712);
+	}
+
+	@Override
+	public void render(Renderer renderer) {
+		renderer.renderImage(overlayImage, 0, 0);
+		try {
+			unitsElements.forEach((sprite, point) -> {
+				renderer.renderImage(sprite, (int) point.getX(), (int) point.getY(), 0, Game.PLATFORM_Y_OFFSET);
+			});
+		} catch (ConcurrentModificationException e) {
+			System.out.println(e.getMessage());
+		}
+		renderCurrentTeamInfo(renderer);
 	}
 
 	@Override

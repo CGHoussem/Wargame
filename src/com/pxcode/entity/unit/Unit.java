@@ -27,7 +27,8 @@ public abstract class Unit implements GameObject {
 	protected boolean isFlipped;
 	protected boolean isFocused;
 	protected BufferedImage sprite, teamIndicator;
-	protected List<List<Tile>> possibilities;
+	protected List<List<Tile>> attackPossibilities;
+	protected List<List<Tile>> movementPossibilities;
 
 	protected static BufferedImage focusIndicator;
 	public static boolean unitFocused = false;
@@ -39,7 +40,8 @@ public abstract class Unit implements GameObject {
 		this.sprite = sprite;
 		isDead = isFlipped = isFocused = false;
 		stats = new Stats(MAX_HEALTH, 50, 25, 2, 3);
-		possibilities = new ArrayList<>();
+		attackPossibilities = new ArrayList<>();
+		movementPossibilities = new ArrayList<>();
 		if (focusIndicator == null)
 			focusIndicator = Game.loadImage("res/focusIndicator.png");
 		setTeamIndex((byte) 0);
@@ -55,10 +57,11 @@ public abstract class Unit implements GameObject {
 		this.stats = stats;
 		this.pos = pos;
 		this.sprite = sprite;
-		possibilities = new ArrayList<>();
+		attackPossibilities = new ArrayList<>();
+		movementPossibilities = new ArrayList<>();
 		if (focusIndicator == null)
 			focusIndicator = Game.loadImage("res/focusIndicator.png");
-		if (pos.x > Game.WIDTH / 2)
+		if (teamIndex == 1)
 			flip();
 	}
 
@@ -190,7 +193,28 @@ public abstract class Unit implements GameObject {
 			list.add(game.map.getTiles().get(index));
 	}
 
-	private void calculatePossibilities(Game game, Tile tile) {
+	private void calculateAttackPossibilities(Game game, Tile tile) {
+		int tileIndex = game.map.getTiles().indexOf(tile);
+		List<Tile> list1 = new ArrayList<>(), list2 = new ArrayList<>(), list3 = new ArrayList<>(),
+				list4 = new ArrayList<>(), list5 = new ArrayList<>(), list6 = new ArrayList<>();
+		for (int i = 1; i <= stats.getAttackRange(); i++) {
+			setPossibility(game, list1, tileIndex + i);
+			setPossibility(game, list2, tileIndex - i);
+			setPossibility(game, list3, tileIndex + 10 * i - i);
+			setPossibility(game, list4, tileIndex + 10 * i);
+			setPossibility(game, list5, tileIndex - 10 * i);
+			setPossibility(game, list6, tileIndex - 10 * i + i);
+		}
+
+		attackPossibilities.add(list1);
+		attackPossibilities.add(list2);
+		attackPossibilities.add(list3);
+		attackPossibilities.add(list4);
+		attackPossibilities.add(list5);
+		attackPossibilities.add(list6);
+	}
+
+	private void calculateMovementPossibilities(Game game, Tile tile) {
 		int tileIndex = game.map.getTiles().indexOf(tile);
 		List<Tile> list1 = new ArrayList<>(), list2 = new ArrayList<>(), list3 = new ArrayList<>(),
 				list4 = new ArrayList<>(), list5 = new ArrayList<>(), list6 = new ArrayList<>();
@@ -203,29 +227,33 @@ public abstract class Unit implements GameObject {
 			setPossibility(game, list6, tileIndex - 10 * i + i);
 		}
 
-		possibilities.add(list1);
-		possibilities.add(list2);
-		possibilities.add(list3);
-		possibilities.add(list4);
-		possibilities.add(list5);
-		possibilities.add(list6);
-
+		movementPossibilities.add(list1);
+		movementPossibilities.add(list2);
+		movementPossibilities.add(list3);
+		movementPossibilities.add(list4);
+		movementPossibilities.add(list5);
+		movementPossibilities.add(list6);
 	}
 
-	public void showPossbilities(Game game, Tile tile) {
-		calculatePossibilities(game, tile);
+	private void showAttackPossibilities(Game game, Tile tile) {
+		attackPossibilities.forEach(list -> {
+			for (Tile t : list) {
+				Unit u = t.getUnit();
+				if (u != null && u.getTeamIndex() != this.teamIndex) {
+					t.requestAttack(game);
+					break;
+				}
+			}
+		});
+	}
 
-		possibilities.forEach(list -> {
+	private void showMovementPossibilities(Game game, Tile tile) {
+		movementPossibilities.forEach(list -> {
 			for (Tile t : list) {
 				Unit u = t.getUnit();
 				if (u != null) {
-					if (u.getTeamIndex() != this.teamIndex) {
-						t.requestAttack(game);
-						break;
-					} else {
-						t.requestBlockMouvement(game);
-						break;
-					}
+					t.requestBlockMouvement(game);
+					break;
 				} else if (t.isMovementPermitted()) {
 					t.requestMouvement(game);
 				} else {
@@ -234,31 +262,51 @@ public abstract class Unit implements GameObject {
 				}
 			}
 		});
+	}
 
+	public void showPossbilities(Game game, Tile tile) {
+		calculateMovementPossibilities(game, tile);
+		calculateAttackPossibilities(game, tile);
+
+		showAttackPossibilities(game, tile);
+		showMovementPossibilities(game, tile);
 	}
 
 	public void hidePossbilities(Game game) {
-		possibilities.forEach(list -> {
+		movementPossibilities.forEach(list -> {
 			list.forEach(t -> {
 				t.unrequestMouvement(game);
-				t.unrequestAttack(game);
 				t.unrequestBlockMouvement(game);
+			});
+		});
+		attackPossibilities.forEach(list -> {
+			list.forEach(t -> {
+				t.unrequestAttack(game);
 				t.unrequestBlockAttack(game);
 			});
 		});
-		possibilities.clear();
+		movementPossibilities.clear();
+		attackPossibilities.clear();
 	}
 
-	private boolean isInPossibilities(Tile tile) {
+	private boolean isInAttackPossibilities(Tile tile) {
 		boolean contains = false;
-		for (List<Tile> list : possibilities) {
+		for (List<Tile> list : attackPossibilities) {
+			contains |= list.contains(tile);
+		}
+		return contains;
+	}
+
+	private boolean isInMovementPossibilities(Tile tile) {
+		boolean contains = false;
+		for (List<Tile> list : movementPossibilities) {
 			contains |= list.contains(tile);
 		}
 		return contains;
 	}
 
 	public boolean move(Tile destination) {
-		if (destination.isMovementPermitted() && isInPossibilities(destination)) {
+		if (destination.isMovementPermitted() && isInMovementPossibilities(destination)) {
 			pos.x = destination.getX();
 			pos.y = destination.getY();
 			destination.setUnit(this);
@@ -268,7 +316,7 @@ public abstract class Unit implements GameObject {
 	}
 
 	public boolean attack(Tile enemyTile) {
-		if (enemyTile.isAttackPermitted()) {
+		if (enemyTile.isAttackPermitted() && isInAttackPossibilities(enemyTile)) {
 			enemyTile.getUnit().hurt(stats.getAttackDamage());
 			return true;
 		}
@@ -278,6 +326,10 @@ public abstract class Unit implements GameObject {
 	public void die() {
 		isDead = true;
 		Game.instance.hud.removeUnitStats();
+		if (teamIndex == 1)
+			Game.instance.players[0].addScore(1); 
+		else
+			Game.instance.players[1].addScore(1);
 	}
 
 	public void hurt(float damage) {

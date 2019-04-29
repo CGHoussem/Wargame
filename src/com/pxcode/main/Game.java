@@ -13,6 +13,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -21,7 +24,7 @@ import com.pxcode.entity.AIPlayer;
 import com.pxcode.entity.HumanPlayer;
 import com.pxcode.entity.Map;
 import com.pxcode.entity.Player;
-import com.pxcode.entity.unit.Graves;
+import com.pxcode.entity.unit.Kayle;
 import com.pxcode.entity.unit.Unit;
 import com.pxcode.graphic.HUD;
 import com.pxcode.graphic.Renderer;
@@ -38,6 +41,8 @@ public class Game extends Canvas implements Runnable {
 	public static final int WIDTH = 1130;
 	public static final int HEIGHT = 910;
 	public static final int PLATFORM_Y_OFFSET = 14;
+	public static int countdownTimer = 10;
+	public static final long ROLE_TIMEOUT = 1000L * countdownTimer;
 
 	public Renderer renderer;
 	public Map map;
@@ -47,6 +52,7 @@ public class Game extends Canvas implements Runnable {
 	public Graphics2D graphics;
 	public Player[] players = new Player[2];
 	public byte currentTeamPlaying = 0;
+	public Timer roleTimer;
 	public static boolean isDebug = false;
 
 	private Unit previousUnit = null;
@@ -62,7 +68,6 @@ public class Game extends Canvas implements Runnable {
 		}
 
 		Font font = null;
-
 		InputStream fontFile = this.getClass().getResourceAsStream("../../../../res/Gamer.ttf");
 		try {
 			font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
@@ -70,7 +75,7 @@ public class Game extends Canvas implements Runnable {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		font = font.deriveFont(32f);
+		font = font.deriveFont(40f);
 		setFont(font);
 
 		renderer = new Renderer(WIDTH, HEIGHT);
@@ -86,6 +91,30 @@ public class Game extends Canvas implements Runnable {
 		addMouseListener(mouse);
 		addMouseMotionListener(mouse);
 		addKeyListener(keyboard);
+
+		TimerTask roleTimeLimiter = new TimerTask() {
+			public void run() {
+				// TODO: Notify the players for the role changing!
+				switchTeams();
+				resetTimer();
+			}
+		};
+		roleTimer = new Timer("RoleTimer");
+
+		roleTimer.scheduleAtFixedRate(roleTimeLimiter, 0L, ROLE_TIMEOUT);
+	}
+
+	private void switchTeams() {
+		if (Unit.focusedUnit != null) {
+			previousTile.getUnit().unfocus();
+			previousTile.getUnit().hidePossbilities(this);
+		}
+		currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
+	}
+	
+	private void resetTimer() {
+		roleTimer.purge();
+		countdownTimer = 10;
 	}
 
 	public void start() {
@@ -130,7 +159,8 @@ public class Game extends Canvas implements Runnable {
 
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				//System.out.println(ticks + " ticks, " + frames + " FPS, Team " + currentTeamPlaying + " is playing..");
+				countdownTimer--;
+				System.out.println(ticks + " ticks, " + frames + " FPS");
 				frames = 0;
 				ticks = 0;
 			}
@@ -140,51 +170,54 @@ public class Game extends Canvas implements Runnable {
 	public void triggerClick(MouseEvent e) {
 		// TODO: Testing Functionalities
 		Tile tile = map.pointToTile(e.getPoint());
-		Unit unit = tile.getUnit();
-		if (!isDebug) {
-			// there is a focused unit
-			if (Unit.unitFocused && Unit.focusedUnit != null) {
-				if (unit != null) {
-					if (unit.getTeamIndex() == currentTeamPlaying) {
-						if (unit == previousUnit) {
-							unit.unfocus();
+		if (tile != null) {
+			Unit unit = tile.getUnit();
+
+			if (!isDebug) {
+				// there is a focused unit
+				if (Unit.unitFocused && Unit.focusedUnit != null) {
+					if (unit != null) {
+						if (unit.getTeamIndex() == currentTeamPlaying) {
+							if (unit == previousUnit) {
+								unit.unfocus();
+								previousUnit.hidePossbilities(this);
+							}
+						} else if (unit.getTeamIndex() != Unit.focusedUnit.getTeamIndex()) {
+							if (previousUnit.attack(tile)) {
+								previousUnit.unfocus();
+								previousUnit.hidePossbilities(this);
+								currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
+							}
+						} else {
+							previousUnit.unfocus();
 							previousUnit.hidePossbilities(this);
+							unit.focus();
+							unit.showPossbilities(this, tile);
+							previousUnit = unit;
 						}
-					} else if (unit.getTeamIndex() != Unit.focusedUnit.getTeamIndex()) {
-						if (previousUnit.attack(tile)) {
+					} else {
+						if (previousUnit.move(tile)) {
+							previousTile.setUnit(null);
 							previousUnit.unfocus();
 							previousUnit.hidePossbilities(this);
 							currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
 						}
-					} else {
-						previousUnit.unfocus();
-						previousUnit.hidePossbilities(this);
-						unit.focus();
-						unit.showPossbilities(this, tile);
-						previousUnit = unit;
 					}
 				} else {
-					if (previousUnit.move(tile)) {
-						previousTile.setUnit(null);
-						previousUnit.unfocus();
-						previousUnit.hidePossbilities(this);
-						currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
+					if (unit != null) {
+						// clicked on an allied unit
+						if (unit.getTeamIndex() == currentTeamPlaying) {
+							unit.focus();
+							unit.showPossbilities(this, tile);
+							previousUnit = unit;
+						}
 					}
 				}
 			} else {
-				if (unit != null) {
-					// clicked on an allied unit
-					if (unit.getTeamIndex() == currentTeamPlaying) {
-						unit.focus();
-						unit.showPossbilities(this, tile);
-						previousUnit = unit;
-					}
-				}
+				tile.setUnit(new Kayle(tile.getX(), tile.getY()));
 			}
-		} else {
-			tile.setUnit(new Graves(tile.getX(), tile.getY()));
+			previousTile = tile;
 		}
-		previousTile = tile;
 	}
 
 	private void update() {

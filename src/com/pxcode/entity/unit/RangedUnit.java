@@ -7,6 +7,7 @@ public class RangedUnit extends Unit {
 
 	public RangedUnit(int x, int y, BufferedImage sprite) {
 		super(x, y, sprite);
+		stats.setBaseAttackRange(3);
 		stats.setAttackRange(3);
 	}
 

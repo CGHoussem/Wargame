@@ -73,9 +73,6 @@ public abstract class Tile implements GameObject {
 				} else if (this instanceof Grass) { // Grass
 					// +35 attack damage
 					stats.setAttackDamage(stats.getBaseAttackDamage() + 35);
-				} else if (this instanceof Sand) { // Sand
-					// +1 attack range
-					stats.setAttackRange(stats.getBaseAttackRange() + 1);
 				} else if (this instanceof Water) { // Water
 					// +30 armor
 					stats.setArmor(stats.getBaseArmor() + 30);
@@ -85,6 +82,7 @@ public abstract class Tile implements GameObject {
 			}
 			unit.setStats(stats);
 		}
+
 	}
 
 	@Override

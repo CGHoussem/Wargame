@@ -59,4 +59,8 @@ public abstract class Player {
 		this.units = units;
 	}
 
+	public void addScore(int v) {
+		score += v;
+	}
+
 }
