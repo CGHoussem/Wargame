@@ -239,7 +239,7 @@ public class Map implements GameObject, Serializable {
 				unit.setAsEnemyHUD();
 			}
 		}
-		
+
 		hoverX = p.x;
 		hoverY = p.y;
 	}
@@ -271,9 +271,9 @@ public class Map implements GameObject, Serializable {
 	}
 
 	private void renderMap(Renderer renderer) {
-		tiles.forEach(tile -> {
+		for (Tile tile : tiles) {
 			tile.render(renderer);
-		});
+		}
 
 	}
 
@@ -305,7 +305,7 @@ public class Map implements GameObject, Serializable {
 	public BufferedImage getBackground() {
 		return backgroundImage;
 	}
-	
+
 	public long getIndex() {
 		return index;
 	}

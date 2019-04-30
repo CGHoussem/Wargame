@@ -5,9 +5,10 @@ import java.io.Serializable;
 
 import com.pxcode.entity.unit.Graves;
 import com.pxcode.entity.unit.Kayle;
+import com.pxcode.entity.unit.Nashor;
+import com.pxcode.entity.unit.Sion;
 import com.pxcode.entity.unit.Stats;
 import com.pxcode.entity.unit.Unit;
-import com.pxcode.main.Game;
 
 public class SerializableUnit implements Serializable {
 	private static final long serialVersionUID = -2324065978327189004L;
@@ -30,6 +31,10 @@ public class SerializableUnit implements Serializable {
 			type = UnitType.GRAVES;
 		} else if (unit instanceof Kayle) {
 			type = UnitType.KAYLE;
+		} else if (unit instanceof Sion) {
+			type = UnitType.SION;
+		} else if (unit instanceof Nashor) {
+			type = UnitType.NASHOR;
 		}
 	}
 
@@ -39,10 +44,16 @@ public class SerializableUnit implements Serializable {
 		Unit.count = count;
 		switch (type) {
 		case GRAVES:
-			unit = new Graves(index, teamIndex, stats, pos, Game.loadImage("res/graves.png"));
+			unit = new Graves(index, teamIndex, stats, pos);
 			break;
 		case KAYLE:
-			unit = new Kayle(index, teamIndex, stats, pos, Game.loadImage("res/kayle.png"));
+			unit = new Kayle(index, teamIndex, stats, pos);
+			break;
+		case SION:
+			unit = new Sion(index, teamIndex, stats, pos);
+			break;
+		case NASHOR:
+			unit = new Nashor(index, teamIndex, stats, pos);
 			break;
 		}
 		return unit;

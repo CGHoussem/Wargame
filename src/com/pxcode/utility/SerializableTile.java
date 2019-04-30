@@ -47,10 +47,16 @@ public class SerializableTile implements Serializable {
 			tile = new Grass(x, y);
 			break;
 		case SAND:
-			tile = new Sand(x, y, isAccessible);
+			if (unit == null)
+				tile = new Sand(x, y, isAccessible);
+			else
+				tile = new Sand(x, y, true);
 			break;
 		case STONE:
-			tile = new Stone(x, y, isAccessible);
+			if (unit == null)
+				tile = new Stone(x, y, isAccessible);
+			else
+				tile = new Stone(x, y, true);
 			break;
 		case WATER:
 			tile = new Water(x, y);

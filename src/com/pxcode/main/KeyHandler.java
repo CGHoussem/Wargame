@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import com.pxcode.entity.Map;
+import com.pxcode.utility.UnitType;
 
 public class KeyHandler implements KeyListener {
 
@@ -18,6 +19,18 @@ public class KeyHandler implements KeyListener {
 			break;
 		case KeyEvent.VK_D:
 			Game.isDebug = !Game.isDebug;
+			break;
+		case KeyEvent.VK_N:
+			Game.unitToBeSpawn = UnitType.NASHOR;
+			break;
+		case KeyEvent.VK_G:
+			Game.unitToBeSpawn = UnitType.GRAVES;
+			break;
+		case KeyEvent.VK_K:
+			Game.unitToBeSpawn = UnitType.KAYLE;
+			break;
+		case KeyEvent.VK_I:
+			Game.unitToBeSpawn = UnitType.SION;
 			break;
 		}
 	}

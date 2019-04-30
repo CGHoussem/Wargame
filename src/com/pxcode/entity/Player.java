@@ -19,6 +19,14 @@ public abstract class Player {
 		units = new ArrayList<>();
 	}
 
+	public boolean isRoleOver() {
+		boolean isAllRolePlayed = true;
+		for (Unit u : getUnits()) {
+			isAllRolePlayed &= (!u.isDead() && u.isRolePlayed()); 
+		}
+		return isAllRolePlayed;
+	}
+	
 	public void addUnit(Unit unit) {
 		units.add(unit);
 	}

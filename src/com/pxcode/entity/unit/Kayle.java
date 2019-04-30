@@ -17,7 +17,7 @@ public class Kayle extends MeleeUnit {
 		stats.setAttackDamage(40);
 	}
 
-	public Kayle(int index, byte teamIndex, Stats stats, Point pos, BufferedImage sprite) {
-		super(index, teamIndex, stats, pos, sprite);
+	public Kayle(int index, byte teamIndex, Stats stats, Point pos) {
+		super(index, teamIndex, stats, pos, Game.loadImage("res/kayle.png"));
 	}
 }

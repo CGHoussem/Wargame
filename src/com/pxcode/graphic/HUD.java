@@ -115,7 +115,7 @@ public class HUD implements GameObject {
 		teamScore = Game.instance.players[Game.instance.currentTeamPlaying].getScore();
 		renderOutlinedText(g, teamText, Color.BLACK, teamColor, 759, 757);
 		renderOutlinedText(g, String.valueOf(teamScore), Color.BLACK, Color.WHITE, 848, 782);
-		renderOutlinedText(g, String.valueOf(Game.countdownTimer), Color.BLACK, Color.WHITE, 960, 795);
+		renderOutlinedText(g, String.valueOf(Game.instance.countdownTimer), Color.BLACK, Color.WHITE, 960, 795);
 		unsetEnemyUnit();
 	}
 

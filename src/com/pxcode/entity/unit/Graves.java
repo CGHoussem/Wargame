@@ -15,7 +15,7 @@ public class Graves extends RangedUnit {
 		super(x, y, Game.loadImage("res/graves.png"));
 	}
 
-	public Graves(int index, byte teamIndex, Stats stats, Point pos, BufferedImage sprite) {
-		super(index, teamIndex, stats, pos, sprite);
+	public Graves(int index, byte teamIndex, Stats stats, Point pos) {
+		super(index, teamIndex, stats, pos, Game.loadImage("res/graves.png"));
 	}
 }

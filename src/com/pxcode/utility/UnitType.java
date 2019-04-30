@@ -1,5 +1,5 @@
 package com.pxcode.utility;
 
 public enum UnitType {
-	GRAVES, KAYLE
+	GRAVES, KAYLE, SION, NASHOR
 }

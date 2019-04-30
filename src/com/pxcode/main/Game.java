@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -24,11 +23,15 @@ import com.pxcode.entity.AIPlayer;
 import com.pxcode.entity.HumanPlayer;
 import com.pxcode.entity.Map;
 import com.pxcode.entity.Player;
+import com.pxcode.entity.unit.Graves;
 import com.pxcode.entity.unit.Kayle;
+import com.pxcode.entity.unit.Nashor;
+import com.pxcode.entity.unit.Sion;
 import com.pxcode.entity.unit.Unit;
 import com.pxcode.graphic.HUD;
 import com.pxcode.graphic.Renderer;
 import com.pxcode.tiles.Tile;
+import com.pxcode.utility.UnitType;
 
 public class Game extends Canvas implements Runnable {
 
@@ -41,8 +44,11 @@ public class Game extends Canvas implements Runnable {
 	public static final int WIDTH = 1130;
 	public static final int HEIGHT = 910;
 	public static final int PLATFORM_Y_OFFSET = 14;
-	public static int countdownTimer = 10;
-	public static final long ROLE_TIMEOUT = 1000L * countdownTimer;
+	public static final int TIMEOUT = 30;
+	public static final long ROLE_TIMEOUT = 1000L * TIMEOUT;
+
+	public static boolean isDebug = false;
+	public static UnitType unitToBeSpawn;
 
 	public Renderer renderer;
 	public Map map;
@@ -52,9 +58,10 @@ public class Game extends Canvas implements Runnable {
 	public Graphics2D graphics;
 	public Player[] players = new Player[2];
 	public byte currentTeamPlaying = 0;
-	public Timer roleTimer;
-	public static boolean isDebug = false;
+	public int countdownTimer = TIMEOUT;
 
+	private Timer roleTimer;
+	private TimerTask roleTimeLimiter;
 	private Unit previousUnit = null;
 	private Tile previousTile = null;
 
@@ -85,36 +92,43 @@ public class Game extends Canvas implements Runnable {
 		players[0] = new HumanPlayer((byte) 0, "PxHoussem");
 		players[1] = new AIPlayer((byte) 1, "PxAI");
 
-		map = new Map("map20191181712");
+		map = new Map("map201912022361");
 		// map = Map.generateMap();
 
 		addMouseListener(mouse);
 		addMouseMotionListener(mouse);
 		addKeyListener(keyboard);
 
-		TimerTask roleTimeLimiter = new TimerTask() {
+		roleTimeLimiter = new TimerTask() {
 			public void run() {
-				// TODO: Notify the players for the role changing!
 				switchTeams();
 				resetTimer();
 			}
 		};
 		roleTimer = new Timer("RoleTimer");
-
 		roleTimer.scheduleAtFixedRate(roleTimeLimiter, 0L, ROLE_TIMEOUT);
 	}
 
+	private void notifyPlayers() {
+		// TODO: Notify the players for the role changing!
+	}
+
 	private void switchTeams() {
+		notifyPlayers();
+		for (Unit u : players[currentTeamPlaying].getUnits()) {
+			u.setRolePlayed(false);
+		}
 		if (Unit.focusedUnit != null) {
-			previousTile.getUnit().unfocus();
-			previousTile.getUnit().hidePossbilities(this);
+			previousUnit.unfocus();
+			previousUnit.hidePossbilities(this);
 		}
 		currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
+		countdownTimer = TIMEOUT;
 	}
-	
+
 	private void resetTimer() {
-		roleTimer.purge();
-		countdownTimer = 10;
+		countdownTimer = TIMEOUT;
+		roleTimer.cancel();
 	}
 
 	public void start() {
@@ -160,6 +174,10 @@ public class Game extends Canvas implements Runnable {
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
 				countdownTimer--;
+				if (countdownTimer <= 0) {
+					switchTeams();
+					resetTimer();
+				}
 				System.out.println(ticks + " ticks, " + frames + " FPS");
 				frames = 0;
 				ticks = 0;
@@ -176,51 +194,76 @@ public class Game extends Canvas implements Runnable {
 			if (!isDebug) {
 				// there is a focused unit
 				if (Unit.unitFocused && Unit.focusedUnit != null) {
-					if (unit != null) {
+					if (unit != null && !unit.isRolePlayed()) { // There is a unit on the tile
+						// Same team
 						if (unit.getTeamIndex() == currentTeamPlaying) {
+							// Same unit
 							if (unit == previousUnit) {
 								unit.unfocus();
 								previousUnit.hidePossbilities(this);
-							}
-						} else if (unit.getTeamIndex() != Unit.focusedUnit.getTeamIndex()) {
-							if (previousUnit.attack(tile)) {
+								// Ally unit
+							} else {
 								previousUnit.unfocus();
 								previousUnit.hidePossbilities(this);
-								currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
+								unit.focus();
+								unit.showPossbilities(this, tile);
+								previousUnit = unit;
 							}
-						} else {
-							previousUnit.unfocus();
-							previousUnit.hidePossbilities(this);
-							unit.focus();
-							unit.showPossbilities(this, tile);
-							previousUnit = unit;
+							// Enemy team
+						} else if (unit.getTeamIndex() != currentTeamPlaying) {
+							// Attempt Attacking
+							if (previousUnit.attack(tile)) {
+								if (Unit.focusedUnit != null) {
+									previousUnit.unfocus();
+									previousUnit.hidePossbilities(this);
+								}
+							}
 						}
-					} else {
+					} else { // There is not unit on the tile
+						// Attempt Movement
 						if (previousUnit.move(tile)) {
 							previousTile.setUnit(null);
-							previousUnit.unfocus();
-							previousUnit.hidePossbilities(this);
-							currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
+							if (Unit.focusedUnit != null) {
+								previousUnit.unfocus();
+								previousUnit.hidePossbilities(this);
+							}
 						}
 					}
-				} else {
-					if (unit != null) {
-						// clicked on an allied unit
-						if (unit.getTeamIndex() == currentTeamPlaying) {
-							unit.focus();
-							unit.showPossbilities(this, tile);
-							previousUnit = unit;
-						}
+				} else if (unit != null && !unit.isRolePlayed()) {
+					// first click on an ally unit
+					if (unit.getTeamIndex() == currentTeamPlaying) {
+						unit.focus();
+						unit.showPossbilities(this, tile);
+						previousUnit = unit;
 					}
 				}
 			} else {
-				tile.setUnit(new Kayle(tile.getX(), tile.getY()));
+				switch (unitToBeSpawn) {
+				case GRAVES:
+					tile.setUnit(new Graves(tile.getX(), tile.getY()));
+					break;
+				case KAYLE:
+					tile.setUnit(new Kayle(tile.getX(), tile.getY()));
+					break;
+				case SION:
+					tile.setUnit(new Sion(tile.getX(), tile.getY()));
+					break;
+				case NASHOR:
+					tile.setUnit(new Nashor(tile.getX() - 10, tile.getY() - 10));
+					break;
+				}
 			}
 			previousTile = tile;
 		}
 	}
 
 	private void update() {
+		// check if all roles of current team is played or not
+		if (players[currentTeamPlaying].isRoleOver()) {
+			switchTeams();
+			resetTimer();
+		}
+
 		map.overTile(currentTeamPlaying, new Point(mouse.x, mouse.y));
 		map.update();
 		hud.update();

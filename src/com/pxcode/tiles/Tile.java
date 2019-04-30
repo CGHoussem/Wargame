@@ -156,6 +156,7 @@ public abstract class Tile implements GameObject {
 
 	public void setUnit(Unit unit) {
 		this.unit = unit;
+		isMovementPermitted = true;
 	}
 
 	public BufferedImage getImage() {
