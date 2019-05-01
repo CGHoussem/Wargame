@@ -1,8 +1,6 @@
 package com.pxcode.main;
 
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 final public class ResourceLoader {
 	public static InputStream load(String path) {
@@ -12,5 +10,5 @@ final public class ResourceLoader {
 		}
 		return input;
 	}
-	
+
 }

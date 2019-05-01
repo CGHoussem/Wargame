@@ -66,6 +66,8 @@ public class Game extends Canvas implements Runnable {
 	private Unit previousUnit = null;
 	private Tile previousTile = null;
 
+	private boolean hasAIPlayed = false;
+
 	public Game() {
 		if (instance == null) {
 			instance = this;
@@ -91,8 +93,8 @@ public class Game extends Canvas implements Runnable {
 		players[0] = new HumanPlayer((byte) 0, "PxHoussem");
 		players[1] = new AIPlayer((byte) 1, "PxAI");
 
-		map = new Map("map20191211640");
-//		map = Map.generateMap();
+		//map = new Map("map20191211640");
+		map = Map.generateMap();
 
 		addMouseListener(mouse);
 		addMouseMotionListener(mouse);
@@ -122,6 +124,9 @@ public class Game extends Canvas implements Runnable {
 			previousUnit.hidePossbilities(this);
 		}
 		currentTeamPlaying = (byte) (currentTeamPlaying == 1 ? 0 : 1);
+		if (currentTeamPlaying == 0) {
+			hasAIPlayed = false;
+		}
 		countdownTimer = TIMEOUT;
 	}
 
@@ -152,8 +157,8 @@ public class Game extends Canvas implements Runnable {
 			delta += (now - lastTime) / nanoSecondConversion;
 			lastTime = now;
 			while (delta >= 1) {
-				ticks++;
 				update();
+				ticks++;
 				delta--;
 				shouldRender = true;
 			}
@@ -176,7 +181,7 @@ public class Game extends Canvas implements Runnable {
 					switchTeams();
 					resetTimer();
 				}
-				// System.out.println(ticks + " ticks, " + frames + " FPS");
+				System.out.println(ticks + " ticks, " + frames + " FPS");
 				frames = 0;
 				ticks = 0;
 			}
@@ -184,7 +189,6 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	public void triggerClick(MouseEvent e) {
-		// TODO: Testing Functionalities
 		Tile tile = map.pointToTile(e.getPoint());
 		if (tile != null) {
 			Unit unit = tile.getUnit();
@@ -235,7 +239,7 @@ public class Game extends Canvas implements Runnable {
 						previousUnit = unit;
 					}
 				}
-			} else {
+			} else if (unitToBeSpawn != null && tile.isMovementPermitted()){
 				switch (unitToBeSpawn) {
 				case GRAVES:
 					tile.setUnit(new Graves(tile.getX(), tile.getY()));
@@ -256,8 +260,18 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	private void update() {
+
+		// play AI
+		if (players[currentTeamPlaying] instanceof AIPlayer) {
+			if (!hasAIPlayed) {
+				((AIPlayer) players[currentTeamPlaying]).playRole(this);
+				hasAIPlayed = true;
+				switchTeams();
+			}
+		}
+
 		// check if all roles of current team is played or not
-		if (players[currentTeamPlaying].isRoleOver()) {
+		if (players[currentTeamPlaying] instanceof HumanPlayer && players[currentTeamPlaying].isRoleOver()) {
 			switchTeams();
 			resetTimer();
 		}
@@ -267,7 +281,7 @@ public class Game extends Canvas implements Runnable {
 		hud.update();
 	}
 
-	private void render() {
+	public void render() {
 		BufferStrategy bs = getBufferStrategy();
 		if (bs == null) {
 			createBufferStrategy(3);
@@ -288,7 +302,6 @@ public class Game extends Canvas implements Runnable {
 
 	public static BufferedImage loadImage(String path) {
 		try {
-			// File f = new File(path);
 			BufferedImage loadedImage = ImageIO.read(ResourceLoader.load(path));
 			BufferedImage formattedImage = new BufferedImage(loadedImage.getWidth(), loadedImage.getHeight(),
 					BufferedImage.TYPE_INT_RGB);

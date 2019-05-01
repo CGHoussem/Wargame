@@ -7,6 +7,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.pxcode.entity.GameObject;
 import com.pxcode.graphic.Renderer;
@@ -29,7 +30,7 @@ public abstract class Unit implements GameObject {
 	protected BufferedImage sprite, teamIndicator;
 	protected List<List<Tile>> attackPossibilities;
 	protected List<List<Tile>> movementPossibilities;
-	
+
 	protected static BufferedImage focusIndicator, roleOverIndicator;
 	public static boolean unitFocused = false;
 	public static Unit focusedUnit = null;
@@ -45,10 +46,10 @@ public abstract class Unit implements GameObject {
 		focusIndicator = Game.loadImage("sprites/indicators/focusIndicator.png");
 		roleOverIndicator = Game.loadImage("sprites/indicators/roleOver.png");
 		setTeamIndex((byte) 0);
-		if (x > Game.WIDTH*Game.GAME_SCALE / 2) {
+		if (x > Game.WIDTH * Game.GAME_SCALE / 2) {
 			setTeamIndex((byte) 1);
 			flip();
-		}		
+		}
 		Game.instance.players[teamIndex].addUnit(this);
 	}
 
@@ -126,11 +127,11 @@ public abstract class Unit implements GameObject {
 	public byte getTeamIndex() {
 		return teamIndex;
 	}
-	
+
 	public void setRolePlayed(boolean isRolePlayed) {
 		this.isRolePlayed = isRolePlayed;
 	}
-	
+
 	public boolean isRolePlayed() {
 		return isRolePlayed;
 	}
@@ -336,6 +337,11 @@ public abstract class Unit implements GameObject {
 		return false;
 	}
 
+	private void AIAttack(Tile enemyTile) {
+		enemyTile.getUnit().hurt(stats.getAttackDamage());
+		isRolePlayed = true;
+	}
+
 	public void die() {
 		isDead = true;
 		Game.instance.hud.removeUnitStats();
@@ -361,4 +367,47 @@ public abstract class Unit implements GameObject {
 		Game.instance.hud.setEnemyUnit(this);
 	}
 
+	public Tile getTile() {
+		// TODO: different conditions for big units
+		List<Tile> tiles = Game.instance.map.getTiles();
+		for (Tile t : tiles) {
+			if (pos.x == t.getX() && pos.y == t.getY()) {
+				return t;
+			}
+		}
+		return null;
+	}
+
+	public void playAI(Game game, Tile tile) throws InterruptedException {
+		if (tile != null) {
+			calculateAttackPossibilities(game, tile);
+			calculateMovementPossibilities(game, tile);
+
+			// execute attack move if possible and break the execution the method
+			for (List<Tile> list : attackPossibilities) {
+				for (Tile t : list) {
+					Unit u = t.getUnit();
+					if (u != null && u.getTeamIndex() != teamIndex) {
+						AIAttack(t);
+						TimeUnit.MILLISECONDS.sleep(300);
+						Game.instance.render();
+						return;
+					}
+				}
+			}
+			// execute first movement possibility
+			for (List<Tile> list : movementPossibilities) {
+				for (Tile t : list) {
+					if (t.getUnit() == null && move(t)) {
+						tile.setUnit(null);
+						TimeUnit.MILLISECONDS.sleep(300);
+						Game.instance.render();
+						return;
+					}
+				}
+			}
+		} else {
+			throw new RuntimeException("Error AI action");
+		}
+	}
 }

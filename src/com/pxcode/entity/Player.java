@@ -7,10 +7,10 @@ import com.pxcode.entity.unit.Unit;
 
 public abstract class Player {
 
-	private byte teamIndex;
-	private String username;
-	private int score;
-	private List<Unit> units;
+	protected byte teamIndex;
+	protected String username;
+	protected int score;
+	protected List<Unit> units;
 
 	public Player(byte teamIndex, String username) {
 		this.teamIndex = teamIndex;

@@ -125,7 +125,7 @@ public class Map implements GameObject, Serializable {
 		case DESERT:
 			tileTypes.add(TileType.SAND);
 			tileTypes.add(TileType.MUD);
-			backgroundImage = Game.loadImage("backgrounds/background_desert.png");
+			backgroundImage = Game.loadImage("sprites/backgrounds/background_desert.png");
 			break;
 		}
 		int w = (int) Math.ceil(Tile.WIDTH * Game.GAME_SCALE);
