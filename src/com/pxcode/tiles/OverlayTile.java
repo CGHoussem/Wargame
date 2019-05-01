@@ -6,7 +6,7 @@ public class OverlayTile extends Tile {
 
 	public OverlayTile(int x, int y) {
 		super(x, y);
-		tileSprite = Game.loadImage("res/hexaborder.png");
+		tileSprite = Game.loadImage("sprites/tiles/hexaborder.png");
 	}
 
 }

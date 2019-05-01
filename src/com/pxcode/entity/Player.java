@@ -22,7 +22,9 @@ public abstract class Player {
 	public boolean isRoleOver() {
 		boolean isAllRolePlayed = true;
 		for (Unit u : getUnits()) {
-			isAllRolePlayed &= (!u.isDead() && u.isRolePlayed()); 
+			if (u.isDead())
+				continue;
+			isAllRolePlayed &= u.isRolePlayed(); 
 		}
 		return isAllRolePlayed;
 	}

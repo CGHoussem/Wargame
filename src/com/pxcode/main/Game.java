@@ -10,7 +10,6 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Timer;
@@ -18,6 +17,7 @@ import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import com.pxcode.entity.AIPlayer;
 import com.pxcode.entity.HumanPlayer;
@@ -43,6 +43,7 @@ public class Game extends Canvas implements Runnable {
 	public static final int SCALE_HEIGHT = 7;
 	public static final int WIDTH = 1130;
 	public static final int HEIGHT = 910;
+	public static float GAME_SCALE = 0.75f;
 	public static final int PLATFORM_Y_OFFSET = 14;
 	public static final int TIMEOUT = 30;
 	public static final long ROLE_TIMEOUT = 1000L * TIMEOUT;
@@ -65,8 +66,6 @@ public class Game extends Canvas implements Runnable {
 	private Unit previousUnit = null;
 	private Tile previousTile = null;
 
-	private boolean running = false;
-
 	public Game() {
 		if (instance == null) {
 			instance = this;
@@ -75,14 +74,14 @@ public class Game extends Canvas implements Runnable {
 		}
 
 		Font font = null;
-		InputStream fontFile = this.getClass().getResourceAsStream("../../../../res/Gamer.ttf");
+		InputStream fontFile = ResourceLoader.load("fonts/Gamer.ttf");
 		try {
 			font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
 		} catch (FontFormatException | IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		font = font.deriveFont(40f);
+		font = font.deriveFont(40f * Game.GAME_SCALE);
 		setFont(font);
 
 		renderer = new Renderer(WIDTH, HEIGHT);
@@ -92,8 +91,8 @@ public class Game extends Canvas implements Runnable {
 		players[0] = new HumanPlayer((byte) 0, "PxHoussem");
 		players[1] = new AIPlayer((byte) 1, "PxAI");
 
-		map = new Map("map201912022361");
-		// map = Map.generateMap();
+		map = new Map("map20191211640");
+//		map = Map.generateMap();
 
 		addMouseListener(mouse);
 		addMouseMotionListener(mouse);
@@ -132,12 +131,11 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	public void start() {
-		running = true;
 		new Thread(this).start();
 	}
 
 	public void stop() {
-		running = false;
+
 	}
 
 	public void run() {
@@ -178,7 +176,7 @@ public class Game extends Canvas implements Runnable {
 					switchTeams();
 					resetTimer();
 				}
-				System.out.println(ticks + " ticks, " + frames + " FPS");
+				// System.out.println(ticks + " ticks, " + frames + " FPS");
 				frames = 0;
 				ticks = 0;
 			}
@@ -290,8 +288,8 @@ public class Game extends Canvas implements Runnable {
 
 	public static BufferedImage loadImage(String path) {
 		try {
-			File f = new File(path);
-			BufferedImage loadedImage = ImageIO.read(f);
+			// File f = new File(path);
+			BufferedImage loadedImage = ImageIO.read(ResourceLoader.load(path));
 			BufferedImage formattedImage = new BufferedImage(loadedImage.getWidth(), loadedImage.getHeight(),
 					BufferedImage.TYPE_INT_RGB);
 			formattedImage.getGraphics().drawImage(loadedImage, 0, 0, null);
@@ -314,19 +312,34 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	public static void main(String args[]) {
-		Game game = new Game();
+		try {
+			Game game = new Game();
 
-		JFrame frame = new JFrame(Game.NAME);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(new BorderLayout());
-		frame.add(game, BorderLayout.CENTER);
-		frame.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-		frame.setMinimumSize(new Dimension(WIDTH, HEIGHT));
-		frame.setMaximumSize(new Dimension(WIDTH, HEIGHT));
-		frame.setVisible(true);
-		frame.setResizable(false);
+			JFrame frame = new JFrame(Game.NAME);
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			frame.setLayout(new BorderLayout());
+			frame.add(game, BorderLayout.CENTER);
 
-		game.start();
+			frame.setSize(new Dimension((int) Math.ceil(WIDTH * GAME_SCALE), (int) Math.ceil(HEIGHT * GAME_SCALE)));
+			frame.setPreferredSize(
+					new Dimension((int) Math.ceil(WIDTH * GAME_SCALE), (int) Math.ceil(HEIGHT * GAME_SCALE)));
+			frame.setMinimumSize(
+					new Dimension((int) Math.ceil(WIDTH * GAME_SCALE), (int) Math.ceil(HEIGHT * GAME_SCALE)));
+			frame.setMaximumSize(
+					new Dimension((int) Math.ceil(WIDTH * GAME_SCALE), (int) Math.ceil(HEIGHT * GAME_SCALE)));
+			frame.setVisible(true);
+			frame.setResizable(false);
+
+			game.start();
+		} catch (Exception e) {
+			StringBuffer str = new StringBuffer();
+			for (StackTraceElement elt : e.getStackTrace()) {
+				str.append("\n" + elt.toString());
+			}
+			JOptionPane.showMessageDialog(new JFrame(), "Exception: " + e.getMessage() + str, "Dialog",
+					JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
+		}
 	}
 
 }

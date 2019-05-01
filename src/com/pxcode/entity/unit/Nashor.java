@@ -11,7 +11,7 @@ import com.pxcode.main.Game;
 public class Nashor extends RangedUnit {
 
 	public Nashor(int x, int y) {
-		super(x, y, Game.loadImage("res/nashor.png"));
+		super(x, y, Game.loadImage("sprites/units/nashor.png"));
 		stats.setBaseMovementRange(0);
 		stats.setMovementRange(0);
 		
@@ -29,7 +29,7 @@ public class Nashor extends RangedUnit {
 	}
 
 	public Nashor(int index, byte teamIndex, Stats stats, Point pos) {
-		super(index, teamIndex, stats, pos, Game.loadImage("res/nashor.png"));
+		super(index, teamIndex, stats, pos, Game.loadImage("sprites/units/nashor.png"));
 	}
 	
 }

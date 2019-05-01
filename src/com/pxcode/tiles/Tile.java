@@ -32,10 +32,10 @@ public abstract class Tile implements GameObject {
 		this.index = (++count);
 		this.x = x;
 		this.y = y;
-		canAttackSprite = Game.loadImage("res/attackGranted.png");
-		cantAttackSprite = Game.loadImage("res/attackDenied.png");
-		canMoveSprite = Game.loadImage("res/mvtGranted.png");
-		cantMoveSprite = Game.loadImage("res/mvtDenied.png");
+		canAttackSprite = Game.loadImage("sprites/actions/attackGranted.png");
+		cantAttackSprite = Game.loadImage("sprites/actions/attackDenied.png");
+		canMoveSprite = Game.loadImage("sprites/actions/mvtGranted.png");
+		cantMoveSprite = Game.loadImage("sprites/actions/mvtDenied.png");
 	}
 
 	@Override

@@ -11,13 +11,13 @@ public class Mud extends Tile {
 		Random r = new Random();
 		switch (r.nextInt(3)) {
 		case 0:
-			tileSprite = Game.loadImage("res/hexamud.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexamud.png");
 			break;
 		case 1:
-			tileSprite = Game.loadImage("res/hexamud2.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexamud2.png");
 			break;
 		case 2:
-			tileSprite = Game.loadImage("res/hexamud3.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexamud3.png");
 			break;
 		}
 	}

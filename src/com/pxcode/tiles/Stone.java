@@ -14,20 +14,20 @@ public class Stone extends Tile {
 			int choice = r.nextInt(3);
 			switch (choice) {
 			case 0:
-				tileSprite = Game.loadImage("res/hexastone2.png");
+				tileSprite = Game.loadImage("sprites/tiles/hexastone2.png");
 				isMovementPermitted = false;
 				break;
 			case 1:
-				tileSprite = Game.loadImage("res/hexastone3.png");
+				tileSprite = Game.loadImage("sprites/tiles/hexastone3.png");
 				isMovementPermitted = false;
 				break;
 			case 2:
-				tileSprite = Game.loadImage("res/hexastone4.png");
+				tileSprite = Game.loadImage("sprites/tiles/hexastone4.png");
 				isMovementPermitted = false;
 				break;
 			}
 		} else {
-			tileSprite = Game.loadImage("res/hexastone.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexastone.png");
 		}
 	}
 
@@ -38,17 +38,17 @@ public class Stone extends Tile {
 			int choice = r.nextInt(3);
 			switch (choice) {
 			case 0:
-				tileSprite = Game.loadImage("res/hexastone2.png");
+				tileSprite = Game.loadImage("sprites/tiles/hexastone2.png");
 				break;
 			case 1:
-				tileSprite = Game.loadImage("res/hexastone3.png");
+				tileSprite = Game.loadImage("sprites/tiles/hexastone3.png");
 				break;
 			case 2:
-				tileSprite = Game.loadImage("res/hexastone4.png");
+				tileSprite = Game.loadImage("sprites/tiles/hexastone4.png");
 				break;
 			}
 		} else {
-			tileSprite = Game.loadImage("res/hexastone.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexastone.png");
 		}
 		isMovementPermitted = isAccessible;
 	}

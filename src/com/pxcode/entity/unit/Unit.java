@@ -42,10 +42,10 @@ public abstract class Unit implements GameObject {
 		stats = new Stats(100, 50, 25, 2, 3);
 		attackPossibilities = new ArrayList<>();
 		movementPossibilities = new ArrayList<>();
-		focusIndicator = Game.loadImage("res/focusIndicator.png");
-		roleOverIndicator = Game.loadImage("res/roleover.png");
+		focusIndicator = Game.loadImage("sprites/indicators/focusIndicator.png");
+		roleOverIndicator = Game.loadImage("sprites/indicators/roleOver.png");
 		setTeamIndex((byte) 0);
-		if (x > Game.WIDTH / 2) {
+		if (x > Game.WIDTH*Game.GAME_SCALE / 2) {
 			setTeamIndex((byte) 1);
 			flip();
 		}		
@@ -60,8 +60,8 @@ public abstract class Unit implements GameObject {
 		this.sprite = sprite;
 		attackPossibilities = new ArrayList<>();
 		movementPossibilities = new ArrayList<>();
-		focusIndicator = Game.loadImage("res/focusIndicator.png");
-		roleOverIndicator = Game.loadImage("res/roleover.png");
+		focusIndicator = Game.loadImage("sprites/indicators/focusIndicator.png");
+		roleOverIndicator = Game.loadImage("sprites/indicators/roleOver.png");
 		if (teamIndex == 1)
 			flip();
 		Game.instance.players[teamIndex].addUnit(this);
@@ -146,9 +146,9 @@ public abstract class Unit implements GameObject {
 	public void setTeamIndex(byte teamIndex) {
 		this.teamIndex = teamIndex;
 		if (teamIndex == 0)
-			teamIndicator = Game.loadImage("res/blueUnitIndicator.png");
+			teamIndicator = Game.loadImage("sprites/indicators/blueUnitIndicator.png");
 		else
-			teamIndicator = Game.loadImage("res/redUnitIndicator.png");
+			teamIndicator = Game.loadImage("sprites/indicators/redUnitIndicator.png");
 	}
 
 	private void renderHealthBar(Renderer renderer) {

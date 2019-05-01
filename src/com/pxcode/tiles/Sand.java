@@ -10,18 +10,18 @@ public class Sand extends Tile {
 		super(x, y);
 		Random r = new Random();
 		if (r.nextInt(10) > 7) {
-			tileSprite = Game.loadImage("res/hexasand_noaccess.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexasand_noaccess.png");
 			isMovementPermitted = false;
 		} else
-			tileSprite = Game.loadImage("res/hexasand.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexasand.png");
 	}
 
 	public Sand(int x, int y, boolean isAccessible) {
 		super(x, y);
 		if (!isAccessible)
-			tileSprite = Game.loadImage("res/hexasand_noaccess.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexasand_noaccess.png");
 		else
-			tileSprite = Game.loadImage("res/hexasand.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexasand.png");
 
 		isMovementPermitted = isAccessible;
 	}

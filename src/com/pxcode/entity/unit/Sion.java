@@ -12,7 +12,7 @@ import com.pxcode.main.Game;
 public class Sion extends MeleeUnit {
 
 	public Sion(int x, int y) {
-		super(x, y, Game.loadImage("res/sion.png"));
+		super(x, y, Game.loadImage("sprites/units/sion.png"));
 		stats.setBaseArmor(80);
 		stats.setArmor(80);
 		stats.setBaseAttackDamage(17);
@@ -22,7 +22,7 @@ public class Sion extends MeleeUnit {
 	}
 
 	public Sion(int index, byte teamIndex, Stats stats, Point pos) {
-		super(index, teamIndex, stats, pos, Game.loadImage("res/sion.png"));
+		super(index, teamIndex, stats, pos, Game.loadImage("sprites/units/sion.png"));
 	}
 
 }

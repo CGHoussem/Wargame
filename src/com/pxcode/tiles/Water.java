@@ -6,7 +6,7 @@ public class Water extends Tile {
 
 	public Water(int x, int y) {
 		super(x, y);
-		tileSprite = Game.loadImage("res/hexawater.png");
+		tileSprite = Game.loadImage("sprites/tiles/hexawater.png");
 	}
 
 }

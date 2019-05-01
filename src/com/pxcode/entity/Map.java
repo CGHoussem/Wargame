@@ -2,8 +2,8 @@ package com.pxcode.entity;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 import com.pxcode.entity.unit.Unit;
 import com.pxcode.graphic.Renderer;
 import com.pxcode.main.Game;
+import com.pxcode.main.ResourceLoader;
 import com.pxcode.tiles.Grass;
 import com.pxcode.tiles.Mud;
 import com.pxcode.tiles.OverlayTile;
@@ -57,7 +58,7 @@ public class Map implements GameObject, Serializable {
 		hoverX = hoverY = 0;
 		tiles = new ArrayList<>();
 		overlay = initializeOverlay();
-		loadMap(levelName);
+		loadMap("levels/" + levelName);
 	}
 
 	private MapType chooseRandomType() {
@@ -83,17 +84,19 @@ public class Map implements GameObject, Serializable {
 
 	private List<Tile> initializeOverlay() {
 		List<Tile> overlay = new ArrayList<>();
-		int w = Tile.WIDTH;
-		int h = Tile.HEIGHT;
-		int offsetX = 58;
-		int offsetY = 34;
+		int w = (int) Math.ceil(Tile.WIDTH * Game.GAME_SCALE);
+		int h = (int) Math.ceil(Tile.HEIGHT * Game.GAME_SCALE);
+		int offsetX = (int) (58 * Game.GAME_SCALE);
+		int offsetY = (int) (34 * Game.GAME_SCALE);
 		boolean oddRow = true;
 
 		for (int y = 0; y < Game.SCALE_HEIGHT; y++) {
 			for (int x = 0; x < Game.SCALE_WIDTH; x++) {
-				Tile tile = new OverlayTile(w * x, (h - offsetY) * y);
+				int scaledX = (int) Math.ceil(w * x);
+				int scaledY = (int) Math.ceil(((h - offsetY) * y));
+				Tile tile = new OverlayTile(scaledX, scaledY);
 				if (!oddRow) {
-					tile.setX(w * x + offsetX);
+					tile.setX(scaledX + offsetX);
 				}
 				if (!oddRow && x == 9)
 					continue;
@@ -112,51 +115,53 @@ public class Map implements GameObject, Serializable {
 		case MOUNTAIN:
 			tileTypes.add(TileType.STONE);
 			tileTypes.add(TileType.SNOW);
-			backgroundImage = Game.loadImage("res/background_mountain.png");
+			backgroundImage = Game.loadImage("sprites/backgrounds/background_mountain.png");
 			break;
 		case FOREST:
 			tileTypes.add(TileType.GRASS);
 			tileTypes.add(TileType.WATER);
-			backgroundImage = Game.loadImage("res/background_forest.png");
+			backgroundImage = Game.loadImage("sprites/backgrounds/background_forest.png");
 			break;
 		case DESERT:
 			tileTypes.add(TileType.SAND);
 			tileTypes.add(TileType.MUD);
-			backgroundImage = Game.loadImage("res/background_desert.png");
+			backgroundImage = Game.loadImage("backgrounds/background_desert.png");
 			break;
 		}
-		int w = Tile.WIDTH;
-		int h = Tile.HEIGHT;
-		int offsetX = 58;
-		int offsetY = 34;
+		int w = (int) Math.ceil(Tile.WIDTH * Game.GAME_SCALE);
+		int h = (int) Math.ceil(Tile.HEIGHT * Game.GAME_SCALE);
+		int offsetX = (int) (58 * Game.GAME_SCALE);
+		int offsetY = (int) (34 * Game.GAME_SCALE);
 		boolean oddRow = true;
 
 		for (int y = 0; y < Game.SCALE_HEIGHT; y++) {
 			for (int x = 0; x < Game.SCALE_WIDTH; x++) {
 				TileType choice = tileTypes.get(rand.nextInt(tileTypes.size()));
 				Tile tile = null;
+				int scaledX = (int) Math.ceil(w * x);
+				int scaledY = (int) Math.ceil(((h - offsetY) * y));
 				switch (choice) {
 				case GRASS:
-					tile = new Grass(w * x, (h - offsetY) * y);
+					tile = new Grass(scaledX, scaledY);
 					break;
 				case SAND:
-					tile = new Sand(w * x, (h - offsetY) * y);
+					tile = new Sand(scaledX, scaledY);
 					break;
 				case STONE:
-					tile = new Stone(w * x, (h - offsetY) * y);
+					tile = new Stone(scaledX, scaledY);
 					break;
 				case WATER:
-					tile = new Water(w * x, (h - offsetY) * y);
+					tile = new Water(scaledX, scaledY);
 					break;
 				case MUD:
-					tile = new Mud(w * x, (h - offsetY) * y);
+					tile = new Mud(scaledX, scaledY);
 					break;
 				case SNOW:
-					tile = new Snow(w * x, (h - offsetY) * y);
+					tile = new Snow(scaledX, scaledY);
 					break;
 				}
 				if (!oddRow) {
-					tile.setX(w * x + offsetX);
+					tile.setX(scaledX + offsetX);
 				}
 				if (!oddRow && x == 9)
 					continue;
@@ -170,7 +175,7 @@ public class Map implements GameObject, Serializable {
 
 	public void saveMap() {
 		try {
-			String filePath = "res/map" + index + ".mp";
+			String filePath = "res/levels/map" + index + ".mp";
 
 			FileOutputStream fileOut = new FileOutputStream(filePath);
 			ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
@@ -191,8 +196,8 @@ public class Map implements GameObject, Serializable {
 
 	public void loadMap(final String levelName) {
 		try {
-			String filePath = "res/" + levelName + ".mp";
-			FileInputStream fileIn = new FileInputStream(filePath);
+			String filePath = levelName + ".mp";
+			InputStream fileIn = ResourceLoader.load(filePath);
 			ObjectInputStream objectIn = new ObjectInputStream(fileIn);
 			List<Object> objects = new ArrayList<>();
 			int count = 0;
@@ -201,13 +206,13 @@ public class Map implements GameObject, Serializable {
 			type = (MapType) objectIn.readObject();
 			switch (type) {
 			case MOUNTAIN:
-				backgroundImage = Game.loadImage("res/background_mountain.png");
+				backgroundImage = Game.loadImage("sprites/backgrounds/background_mountain.png");
 				break;
 			case DESERT:
-				backgroundImage = Game.loadImage("res/background_desert.png");
+				backgroundImage = Game.loadImage("sprites/backgrounds/background_desert.png");
 				break;
 			case FOREST:
-				backgroundImage = Game.loadImage("res/background_forest.png");
+				backgroundImage = Game.loadImage("sprites/backgrounds/background_forest.png");
 				break;
 			}
 			while ((count++) < MAX_TILES) {

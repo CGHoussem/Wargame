@@ -11,13 +11,13 @@ public class Grass extends Tile {
 		Random r = new Random();
 		switch (r.nextInt(3)) {
 		case 0:
-			tileSprite = Game.loadImage("res/hexagrass.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexagrass.png");
 			break;
 		case 1:
-			tileSprite = Game.loadImage("res/hexagrass2.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexagrass2.png");
 			break;
 		case 2:
-			tileSprite = Game.loadImage("res/hexagrass3.png");
+			tileSprite = Game.loadImage("sprites/tiles/hexagrass3.png");
 			break;
 		}
 	}

@@ -27,7 +27,7 @@ public class HUD implements GameObject {
 
 	public HUD() {
 		unitsElements = new HashMap<>();
-		overlayImage = Game.loadImage("res/overlay.png");
+		overlayImage = Game.loadImage("sprites/overlay.png");
 	}
 
 	public void addUnitElement(BufferedImage sprite, Point coord) {
@@ -50,7 +50,7 @@ public class HUD implements GameObject {
 		unitStats = null;
 	}
 
-	private void renderOutlinedText(Graphics2D g, String text, Color outline, Color fill, int x, int y) {
+	private void renderOutlinedText(Graphics2D g, String text, Color outline, Color fill, double x, double y) {
 		AffineTransform oldAF = g.getTransform();
 		g.translate(x, y);
 		FontRenderContext frc = g.getFontRenderContext();
@@ -73,10 +73,16 @@ public class HUD implements GameObject {
 
 			renderOutlinedText(g, health, Color.BLACK, new Color(0x4dbf4c), Unit.focusedUnit.getX() + 50,
 					Unit.focusedUnit.getY() + 40);
-			renderOutlinedText(g, ad, Color.BLACK, Color.WHITE, 81, 765);
-			renderOutlinedText(g, ar, Color.BLACK, Color.WHITE, 189, 765);
-			renderOutlinedText(g, mr, Color.BLACK, Color.WHITE, 81, 820);
-			renderOutlinedText(g, mvtr, Color.BLACK, Color.WHITE, 189, 820);
+
+			double x1 = Math.ceil(81 * Game.GAME_SCALE);
+			double x2 = Math.ceil(189 * Game.GAME_SCALE);
+			double y1 = Math.ceil(765 * Game.GAME_SCALE);
+			double y2 = Math.ceil(820 * Game.GAME_SCALE);
+
+			renderOutlinedText(g, ad, Color.BLACK, Color.WHITE, x1, y1);
+			renderOutlinedText(g, ar, Color.BLACK, Color.WHITE, x2, y1);
+			renderOutlinedText(g, mr, Color.BLACK, Color.WHITE, x1, y2);
+			renderOutlinedText(g, mvtr, Color.BLACK, Color.WHITE, x2, y2);
 
 		}
 	}
@@ -113,9 +119,12 @@ public class HUD implements GameObject {
 		}
 
 		teamScore = Game.instance.players[Game.instance.currentTeamPlaying].getScore();
-		renderOutlinedText(g, teamText, Color.BLACK, teamColor, 759, 757);
-		renderOutlinedText(g, String.valueOf(teamScore), Color.BLACK, Color.WHITE, 848, 782);
-		renderOutlinedText(g, String.valueOf(Game.instance.countdownTimer), Color.BLACK, Color.WHITE, 960, 795);
+		renderOutlinedText(g, teamText, Color.BLACK, teamColor, Math.ceil(759 * Game.GAME_SCALE),
+				Math.ceil(757 * Game.GAME_SCALE));
+		renderOutlinedText(g, String.valueOf(teamScore), Color.BLACK, Color.WHITE, Math.ceil(848 * Game.GAME_SCALE),
+				Math.ceil(782 * Game.GAME_SCALE));
+		renderOutlinedText(g, String.valueOf(Game.instance.countdownTimer), Color.BLACK, Color.WHITE,
+				Math.ceil(960 * Game.GAME_SCALE), Math.ceil(795 * Game.GAME_SCALE));
 		unsetEnemyUnit();
 	}
 
@@ -123,12 +132,12 @@ public class HUD implements GameObject {
 		BufferedImage teamFlag = null;
 
 		if (Game.instance.currentTeamPlaying == 0) {
-			teamFlag = Game.loadImage("res/blue_flag.png");
+			teamFlag = Game.loadImage("sprites/indicators/blue_flag.png");
 		} else {
-			teamFlag = Game.loadImage("res/red_flag.png");
+			teamFlag = Game.loadImage("sprites/indicators/red_flag.png");
 		}
 
-		renderer.renderImage(teamFlag, 705, 712);
+		renderer.renderImage(teamFlag, (int)Math.ceil(705*Game.GAME_SCALE), (int)Math.ceil(712*Game.GAME_SCALE));
 	}
 
 	@Override
