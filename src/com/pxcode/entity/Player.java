@@ -68,6 +68,14 @@ public abstract class Player {
 	public void setUnits(List<Unit> units) {
 		this.units = units;
 	}
+	
+	public boolean isAllUnitsDead() {
+		for (Unit u: units) {
+			if (!u.isDead())
+				return false;
+		}
+		return true;
+	}
 
 	public void addScore(int v) {
 		score += v;

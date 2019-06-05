@@ -23,11 +23,24 @@ public class HUD implements GameObject {
 	private Map<BufferedImage, Point> unitsElements;
 	private Stats unitStats;
 	private BufferedImage overlayImage;
+	private BufferedImage blueWonImage;
+	private BufferedImage redWonImage;
+	private BufferedImage wonImage;
 	private Unit enemyUnit;
 
 	public HUD() {
 		unitsElements = new HashMap<>();
 		overlayImage = Game.loadImage("sprites/overlay.png");
+		blueWonImage = Game.loadImage("sprites/indicators/blue_win.png");
+		redWonImage = Game.loadImage("sprites/indicators/red_win.png");
+	}
+
+	public void setTeamWon(int teamIndex) {
+		if (teamIndex == 0) {
+			wonImage = blueWonImage;
+		} else {
+			wonImage = redWonImage;
+		}
 	}
 
 	public void addUnitElement(BufferedImage sprite, Point coord) {
@@ -50,7 +63,7 @@ public class HUD implements GameObject {
 		unitStats = null;
 	}
 
-	private void renderOutlinedText(Graphics2D g, String text, Color outline, Color fill, double x, double y) {
+	public static void renderOutlinedText(Graphics2D g, String text, Color outline, Color fill, double x, double y) {
 		AffineTransform oldAF = g.getTransform();
 		g.translate(x, y);
 		FontRenderContext frc = g.getFontRenderContext();
@@ -83,7 +96,6 @@ public class HUD implements GameObject {
 			renderOutlinedText(g, ar, Color.BLACK, Color.WHITE, x2, y1);
 			renderOutlinedText(g, mr, Color.BLACK, Color.WHITE, x1, y2);
 			renderOutlinedText(g, mvtr, Color.BLACK, Color.WHITE, x2, y2);
-
 		}
 	}
 
@@ -123,9 +135,25 @@ public class HUD implements GameObject {
 				Math.ceil(757 * Game.GAME_SCALE));
 		renderOutlinedText(g, String.valueOf(teamScore), Color.BLACK, Color.WHITE, Math.ceil(848 * Game.GAME_SCALE),
 				Math.ceil(782 * Game.GAME_SCALE));
-		renderOutlinedText(g, String.valueOf(Game.instance.countdownTimer), Color.BLACK, Color.WHITE,
+		renderOutlinedText(g, countdownToTime(Game.instance.countdownTimer), Color.BLACK, Color.WHITE,
 				Math.ceil(960 * Game.GAME_SCALE), Math.ceil(795 * Game.GAME_SCALE));
 		unsetEnemyUnit();
+	}
+
+	private String countdownToTime(int countdown) {
+		int minutes = countdown / 60;
+		int seconds = countdown % 60;
+		StringBuffer minStr = new StringBuffer();
+		StringBuffer secStr = new StringBuffer();
+		if (minutes >= 10)
+			minStr.append(minutes);
+		else
+			minStr.append("0").append(minutes);
+		if (seconds < 10)
+			secStr.append(seconds).append("0");
+		else
+			secStr.append(seconds);
+		return minStr + ":" + secStr;
 	}
 
 	private void renderCurrentTeamInfo(Renderer renderer) {
@@ -137,7 +165,7 @@ public class HUD implements GameObject {
 			teamFlag = Game.loadImage("sprites/indicators/red_flag.png");
 		}
 
-		renderer.renderImage(teamFlag, (int)Math.ceil(705*Game.GAME_SCALE), (int)Math.ceil(712*Game.GAME_SCALE));
+		renderer.renderImage(teamFlag, (int) Math.ceil(705 * Game.GAME_SCALE), (int) Math.ceil(712 * Game.GAME_SCALE));
 	}
 
 	@Override
@@ -151,7 +179,11 @@ public class HUD implements GameObject {
 			System.out.println(e.getMessage());
 		}
 		renderCurrentTeamInfo(renderer);
+		if (wonImage != null) {
+			renderer.renderImage(wonImage, 0, 0);
+		}
 	}
+
 
 	@Override
 	public void update() {

@@ -370,8 +370,12 @@ public abstract class Unit implements GameObject {
 	public Tile getTile() {
 		// TODO: different conditions for big units
 		List<Tile> tiles = Game.instance.map.getTiles();
+		int offset = 0;
+		if (this instanceof Nashor) {
+			offset = 10;
+		}
 		for (Tile t : tiles) {
-			if (pos.x == t.getX() && pos.y == t.getY()) {
+			if (pos.x + offset == t.getX() && pos.y + offset == t.getY()) {
 				return t;
 			}
 		}
@@ -407,7 +411,7 @@ public abstract class Unit implements GameObject {
 				}
 			}
 		} else {
-			throw new RuntimeException("Error AI action");
+			throw new RuntimeException("AI Unit Tile not found!");
 		}
 	}
 }

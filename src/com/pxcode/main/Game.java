@@ -1,8 +1,6 @@
 package com.pxcode.main;
 
-import java.awt.BorderLayout;
 import java.awt.Canvas;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics2D;
@@ -16,8 +14,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import com.pxcode.entity.AIPlayer;
 import com.pxcode.entity.HumanPlayer;
@@ -31,6 +27,7 @@ import com.pxcode.entity.unit.Unit;
 import com.pxcode.graphic.HUD;
 import com.pxcode.graphic.Renderer;
 import com.pxcode.tiles.Tile;
+import com.pxcode.utility.GameState;
 import com.pxcode.utility.UnitType;
 
 public class Game extends Canvas implements Runnable {
@@ -43,29 +40,30 @@ public class Game extends Canvas implements Runnable {
 	public static final int SCALE_HEIGHT = 7;
 	public static final int WIDTH = 1130;
 	public static final int HEIGHT = 910;
-	public static float GAME_SCALE = 0.75f;
+	public static float GAME_SCALE = 1f;
 	public static final int PLATFORM_Y_OFFSET = 14;
-	public static final int TIMEOUT = 30;
+	public static final int TIMEOUT = 60;
 	public static final long ROLE_TIMEOUT = 1000L * TIMEOUT;
 
 	public static boolean isDebug = false;
 	public static UnitType unitToBeSpawn;
+	public static GameState state = GameState.MENU;
 
 	public Renderer renderer;
 	public Map map;
 	public HUD hud;
+	public Menu menu;
 	public MouseHandler mouse = new MouseHandler();
 	public KeyHandler keyboard = new KeyHandler();
 	public Graphics2D graphics;
 	public Player[] players = new Player[2];
 	public byte currentTeamPlaying = 0;
 	public int countdownTimer = TIMEOUT;
+	public boolean isPaused = false;
 
 	private Timer roleTimer;
-	private TimerTask roleTimeLimiter;
 	private Unit previousUnit = null;
 	private Tile previousTile = null;
-
 	private boolean hasAIPlayed = false;
 
 	public Game() {
@@ -75,6 +73,7 @@ public class Game extends Canvas implements Runnable {
 			System.exit(1);
 		}
 
+		// Initializing the font
 		Font font = null;
 		InputStream fontFile = ResourceLoader.load("fonts/Gamer.ttf");
 		try {
@@ -86,36 +85,36 @@ public class Game extends Canvas implements Runnable {
 		font = font.deriveFont(40f * Game.GAME_SCALE);
 		setFont(font);
 
+		// Initializing the renderer
 		renderer = new Renderer(WIDTH, HEIGHT);
+
+		// Initializing MENU + HUD
+		menu = new Menu();
 		hud = new HUD();
 
 		// Initialize the players
 		players[0] = new HumanPlayer((byte) 0, "PxHoussem");
 		players[1] = new AIPlayer((byte) 1, "PxAI");
 
-		//map = new Map("map20191211640");
+		// Loading / Generating a map
+		// map = new Map("map20191211640");
 		map = Map.generateMap();
 
+		// Initialize the listeners
 		addMouseListener(mouse);
 		addMouseMotionListener(mouse);
 		addKeyListener(keyboard);
 
-		roleTimeLimiter = new TimerTask() {
+		new TimerTask() {
 			public void run() {
 				switchTeams();
 				resetTimer();
 			}
 		};
-		roleTimer = new Timer("RoleTimer");
-		roleTimer.scheduleAtFixedRate(roleTimeLimiter, 0L, ROLE_TIMEOUT);
-	}
-
-	private void notifyPlayers() {
-		// TODO: Notify the players for the role changing!
 	}
 
 	private void switchTeams() {
-		notifyPlayers();
+		// hud.notifyPlayers(renderer);
 		for (Unit u : players[currentTeamPlaying].getUnits()) {
 			u.setRolePlayed(false);
 		}
@@ -132,7 +131,15 @@ public class Game extends Canvas implements Runnable {
 
 	private void resetTimer() {
 		countdownTimer = TIMEOUT;
-		roleTimer.cancel();
+		if (roleTimer != null)
+			roleTimer.cancel();
+	}
+
+	private void pauseTimer() {
+		if (roleTimer != null) {
+			roleTimer.cancel();
+			isPaused = true;
+		}
 	}
 
 	public void start() {
@@ -176,10 +183,12 @@ public class Game extends Canvas implements Runnable {
 
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				countdownTimer--;
-				if (countdownTimer <= 0) {
-					switchTeams();
-					resetTimer();
+				if (!isPaused) {
+					countdownTimer--;
+					if (countdownTimer <= 0) {
+						switchTeams();
+						resetTimer();
+					}
 				}
 				System.out.println(ticks + " ticks, " + frames + " FPS");
 				frames = 0;
@@ -189,96 +198,118 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	public void triggerClick(MouseEvent e) {
-		Tile tile = map.pointToTile(e.getPoint());
-		if (tile != null) {
-			Unit unit = tile.getUnit();
+		if (state == GameState.PLAYING) {
+			Tile tile = map.pointToTile(e.getPoint());
+			if (tile != null) {
+				Unit unit = tile.getUnit();
 
-			if (!isDebug) {
-				// there is a focused unit
-				if (Unit.unitFocused && Unit.focusedUnit != null) {
-					if (unit != null && !unit.isRolePlayed()) { // There is a unit on the tile
-						// Same team
-						if (unit.getTeamIndex() == currentTeamPlaying) {
-							// Same unit
-							if (unit == previousUnit) {
-								unit.unfocus();
-								previousUnit.hidePossbilities(this);
-								// Ally unit
-							} else {
-								previousUnit.unfocus();
-								previousUnit.hidePossbilities(this);
-								unit.focus();
-								unit.showPossbilities(this, tile);
-								previousUnit = unit;
+				if (!isDebug) {
+					// there is a focused unit
+					if (Unit.unitFocused && Unit.focusedUnit != null) {
+						if (unit != null && !unit.isRolePlayed()) { // There is a unit on the tile
+							// Same team
+							if (unit.getTeamIndex() == currentTeamPlaying) {
+								// Same unit
+								if (unit == previousUnit) {
+									unit.unfocus();
+									previousUnit.hidePossbilities(this);
+									// Ally unit
+								} else {
+									previousUnit.unfocus();
+									previousUnit.hidePossbilities(this);
+									unit.focus();
+									unit.showPossbilities(this, tile);
+									previousUnit = unit;
+								}
+								// Enemy team
+							} else if (unit.getTeamIndex() != currentTeamPlaying) {
+								// Attempt Attacking
+								if (previousUnit.attack(tile)) {
+									if (Unit.focusedUnit != null) {
+										previousUnit.unfocus();
+										previousUnit.hidePossbilities(this);
+									}
+								}
 							}
-							// Enemy team
-						} else if (unit.getTeamIndex() != currentTeamPlaying) {
-							// Attempt Attacking
-							if (previousUnit.attack(tile)) {
+						} else { // There is not unit on the tile
+							// Attempt Movement
+							if (previousUnit.move(tile)) {
+								previousTile.setUnit(null);
 								if (Unit.focusedUnit != null) {
 									previousUnit.unfocus();
 									previousUnit.hidePossbilities(this);
 								}
 							}
 						}
-					} else { // There is not unit on the tile
-						// Attempt Movement
-						if (previousUnit.move(tile)) {
-							previousTile.setUnit(null);
-							if (Unit.focusedUnit != null) {
-								previousUnit.unfocus();
-								previousUnit.hidePossbilities(this);
-							}
+					} else if (unit != null && !unit.isRolePlayed()) {
+						// first click on an ally unit
+						if (unit.getTeamIndex() == currentTeamPlaying) {
+							unit.focus();
+							unit.showPossbilities(this, tile);
+							previousUnit = unit;
 						}
 					}
-				} else if (unit != null && !unit.isRolePlayed()) {
-					// first click on an ally unit
-					if (unit.getTeamIndex() == currentTeamPlaying) {
-						unit.focus();
-						unit.showPossbilities(this, tile);
-						previousUnit = unit;
+				} else if (unitToBeSpawn != null && tile.isMovementPermitted()) {
+					switch (unitToBeSpawn) {
+					case GRAVES:
+						tile.setUnit(new Graves(tile.getX(), tile.getY()));
+						break;
+					case KAYLE:
+						tile.setUnit(new Kayle(tile.getX(), tile.getY()));
+						break;
+					case SION:
+						tile.setUnit(new Sion(tile.getX(), tile.getY()));
+						break;
+					case NASHOR:
+						tile.setUnit(new Nashor(tile.getX() - 10, tile.getY() - 10));
+						break;
 					}
 				}
-			} else if (unitToBeSpawn != null && tile.isMovementPermitted()){
-				switch (unitToBeSpawn) {
-				case GRAVES:
-					tile.setUnit(new Graves(tile.getX(), tile.getY()));
-					break;
-				case KAYLE:
-					tile.setUnit(new Kayle(tile.getX(), tile.getY()));
-					break;
-				case SION:
-					tile.setUnit(new Sion(tile.getX(), tile.getY()));
-					break;
-				case NASHOR:
-					tile.setUnit(new Nashor(tile.getX() - 10, tile.getY() - 10));
-					break;
-				}
+				previousTile = tile;
 			}
-			previousTile = tile;
+		} else if (state == GameState.MENU) {
+			menu.triggerClick(e.getPoint());
 		}
 	}
 
 	private void update() {
-
-		// play AI
-		if (players[currentTeamPlaying] instanceof AIPlayer) {
-			if (!hasAIPlayed) {
-				((AIPlayer) players[currentTeamPlaying]).playRole(this);
-				hasAIPlayed = true;
-				switchTeams();
+		if (state == GameState.PLAYING) {
+			// check if one of the teams won
+			if (players[0].getScore() != 0 || players[1].getScore() != 0) {
+				if (players[0].isAllUnitsDead() || players[1].isAllUnitsDead()) {
+					// blue team won
+					if (players[0].getUnits().size() == 0) {
+						hud.setTeamWon(1);
+					} // red team won
+					else {
+						hud.setTeamWon(0);
+					}
+					pauseTimer();
+					return;
+				}
 			}
-		}
 
-		// check if all roles of current team is played or not
-		if (players[currentTeamPlaying] instanceof HumanPlayer && players[currentTeamPlaying].isRoleOver()) {
-			switchTeams();
-			resetTimer();
-		}
+			// play AI
+			if (players[currentTeamPlaying] instanceof AIPlayer) {
+				if (!hasAIPlayed) {
+					((AIPlayer) players[currentTeamPlaying]).playRole(this);
+					hasAIPlayed = true;
+					switchTeams();
+				}
+			}
 
-		map.overTile(currentTeamPlaying, new Point(mouse.x, mouse.y));
-		map.update();
-		hud.update();
+			// check if all roles of current team is played or not
+			if (players[currentTeamPlaying] instanceof HumanPlayer && players[currentTeamPlaying].isRoleOver()) {
+				switchTeams();
+				resetTimer();
+			}
+
+			map.overTile(currentTeamPlaying, new Point(mouse.x, mouse.y));
+			map.update();
+			hud.update();
+		} else if (state == GameState.MENU) {
+			menu.update();
+		}
 	}
 
 	public void render() {
@@ -290,10 +321,22 @@ public class Game extends Canvas implements Runnable {
 		}
 
 		graphics = (Graphics2D) bs.getDrawGraphics();
-		map.render(renderer);
-		hud.render(renderer);
-		renderer.render(graphics);
-		hud.renderTexts(graphics);
+		switch (state) {
+		case MENU:
+			menu.render(renderer);
+			renderer.render(graphics);
+			break;
+		case INPUTTING:
+			break;
+		case PLAYING:
+			map.render(renderer);
+			hud.render(renderer);
+			renderer.render(graphics);
+			hud.renderTexts(graphics);
+			break;
+		case PAUSED:
+			break;
+		}
 
 		graphics.dispose();
 		bs.show();
@@ -322,37 +365,6 @@ public class Game extends Canvas implements Runnable {
 		}
 
 		return value;
-	}
-
-	public static void main(String args[]) {
-		try {
-			Game game = new Game();
-
-			JFrame frame = new JFrame(Game.NAME);
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			frame.setLayout(new BorderLayout());
-			frame.add(game, BorderLayout.CENTER);
-
-			frame.setSize(new Dimension((int) Math.ceil(WIDTH * GAME_SCALE), (int) Math.ceil(HEIGHT * GAME_SCALE)));
-			frame.setPreferredSize(
-					new Dimension((int) Math.ceil(WIDTH * GAME_SCALE), (int) Math.ceil(HEIGHT * GAME_SCALE)));
-			frame.setMinimumSize(
-					new Dimension((int) Math.ceil(WIDTH * GAME_SCALE), (int) Math.ceil(HEIGHT * GAME_SCALE)));
-			frame.setMaximumSize(
-					new Dimension((int) Math.ceil(WIDTH * GAME_SCALE), (int) Math.ceil(HEIGHT * GAME_SCALE)));
-			frame.setVisible(true);
-			frame.setResizable(false);
-
-			game.start();
-		} catch (Exception e) {
-			StringBuffer str = new StringBuffer();
-			for (StackTraceElement elt : e.getStackTrace()) {
-				str.append("\n" + elt.toString());
-			}
-			JOptionPane.showMessageDialog(new JFrame(), "Exception: " + e.getMessage() + str, "Dialog",
-					JOptionPane.ERROR_MESSAGE);
-			e.printStackTrace();
-		}
 	}
 
 }

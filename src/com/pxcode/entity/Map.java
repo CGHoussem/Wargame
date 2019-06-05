@@ -268,7 +268,7 @@ public class Map implements GameObject, Serializable {
 					if (hoverX > tile.getX() && hoverX < tile.getX() + Tile.WIDTH && hoverY > tile.getY()
 							&& hoverY < tile.getY() + Tile.HEIGHT) {
 						tile.render(renderer);
-						break;
+						return;
 					}
 				}
 			}
@@ -278,23 +278,17 @@ public class Map implements GameObject, Serializable {
 	private void renderMap(Renderer renderer) {
 		for (Tile tile : tiles) {
 			tile.render(renderer);
-		}
-
-	}
-
-	private void renderUnits(Renderer renderer) {
-		tiles.forEach(tile -> {
 			if (tile.getUnit() != null) {
 				tile.getUnit().render(renderer);
 			}
-		});
+		}
+
 	}
 
 	@Override
 	public void render(Renderer renderer) {
 		renderMap(renderer);
 		renderOverlay(renderer);
-		renderUnits(renderer);
 	}
 
 	@Override

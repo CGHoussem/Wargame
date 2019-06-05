@@ -103,7 +103,10 @@ public class Stats implements Serializable {
 	}
 
 	public void setMovementRange(int movementRange) {
-		this.movementRange = movementRange;
+		if (movementRange > 0)
+			this.movementRange = movementRange;
+		else
+			this.movementRange = 1;
 	}
 
 	public int getAttackRange() {
@@ -111,7 +114,10 @@ public class Stats implements Serializable {
 	}
 
 	public void setAttackRange(int attackRange) {
-		this.attackRange = attackRange;
+		if (attackRange > 0)
+			this.attackRange = attackRange;
+		else
+			this.attackRange = 1;
 	}
 
 }

@@ -99,6 +99,9 @@ public class Renderer {
 	}
 
 	public void clear() {
+		for (int i = 0; i < pixels.length; i++) {
+			pixels[i] = 0;
+		}
 		renderImage(Game.instance.map.getBackground(), 0, 0, 0, Game.PLATFORM_Y_OFFSET);
 	}
 }

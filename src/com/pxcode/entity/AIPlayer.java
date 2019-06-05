@@ -9,7 +9,7 @@ public class AIPlayer extends Player {
 		super(teamIndex, username);
 	}
 
-	public void playRole(Game game) {
+	public void playRole(Game game){
 		Thread AIThread = new Thread() {
 			public void run() {
 				for (Unit u : units) {

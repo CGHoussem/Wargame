@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import com.pxcode.entity.Map;
+import com.pxcode.utility.GameState;
 import com.pxcode.utility.UnitType;
 
 public class KeyHandler implements KeyListener {
@@ -31,6 +32,9 @@ public class KeyHandler implements KeyListener {
 			break;
 		case KeyEvent.VK_I:
 			Game.unitToBeSpawn = UnitType.SION;
+			break;
+		case KeyEvent.VK_ENTER:
+			Game.state = GameState.PLAYING;
 			break;
 		}
 	}
